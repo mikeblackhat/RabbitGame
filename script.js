@@ -152,12 +152,23 @@ function handleWindowResize() {
   renderer.setSize(WIDTH, HEIGHT);
   camera.aspect = WIDTH / HEIGHT;
 
-  // Adjust camera distance for mobile/portrait
+  // Adjust FOV for mobile/portrait to maintain horizontal view
   if (camera.aspect < 1) {
-    camera.position.z = cameraPosGame * (1.2 / camera.aspect);
+    camera.fov = fieldOfView / camera.aspect;
   } else {
-    camera.position.z = cameraPosGame;
+    camera.fov = fieldOfView;
   }
+
+  // Update fog based on camera distance (which is stationary here, but FOV change affects perception)
+  // We also make sure the fog doesn't swallow the world when we are zoomed out in FOV
+  var fogNear = 160;
+  var fogFar = 350;
+  if (camera.aspect < 1) {
+    fogNear *= (1 / camera.aspect);
+    fogFar *= (1 / camera.aspect);
+  }
+  scene.fog.near = fogNear;
+  scene.fog.far = fogFar;
 
   camera.updateProjectionMatrix();
 }
@@ -1048,12 +1059,7 @@ function gameOver() {
   monster.heroHolder.add(hero.mesh);
   TweenMax.to(this, 1, { speed: 0 });
 
-  var targetZ = cameraPosGameOver;
-  if (camera.aspect < 1) {
-    targetZ = cameraPosGameOver * (1.2 / camera.aspect);
-  }
-
-  TweenMax.to(camera.position, 3, { z: targetZ, y: 60, x: -30 });
+  TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
   carrot.mesh.visible = false;
   obstacle.mesh.visible = false;
   clearInterval(levelInterval);
@@ -1084,12 +1090,7 @@ function replay() {
 
   monster.tail.rotation.y = 0;
 
-  var targetZ = cameraPosGame;
-  if (camera.aspect < 1) {
-    targetZ = cameraPosGame * (1.2 / camera.aspect);
-  }
-
-  TweenMax.to(camera.position, 3, { z: targetZ, x: 0, y: 30, ease: Power4.easeInOut });
+  TweenMax.to(camera.position, 3, { z: cameraPosGame, x: 0, y: 30, ease: Power4.easeInOut });
   TweenMax.to(monster.torso.rotation, 2, { x: 0, ease: Power4.easeInOut });
   TweenMax.to(monster.torso.position, 2, { y: 0, ease: Power4.easeInOut });
   TweenMax.to(monster.pawFL.rotation, 2, { x: 0, ease: Power4.easeInOut });
