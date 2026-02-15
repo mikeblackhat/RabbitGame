@@ -152,23 +152,28 @@ function handleWindowResize() {
   renderer.setSize(WIDTH, HEIGHT);
   camera.aspect = WIDTH / HEIGHT;
 
-  // Adjust FOV for mobile/portrait to maintain horizontal view
+  // High impact adjustment for portrait mode
   if (camera.aspect < 1) {
-    camera.fov = fieldOfView / camera.aspect;
+    // Zoom in FOV slightly but also move camera back to keep perspective
+    camera.fov = fieldOfView / (camera.aspect * 0.8);
+    camera.position.z = cameraPosGame * 1.5;
   } else {
     camera.fov = fieldOfView;
+    camera.position.z = cameraPosGame;
   }
 
-  // Update fog based on camera distance (which is stationary here, but FOV change affects perception)
-  // We also make sure the fog doesn't swallow the world when we are zoomed out in FOV
-  var fogNear = 160;
-  var fogFar = 350;
+  // Push fog way back so it doesn't wash out the scene on mobile
+  var fogNear = 200;
+  var fogFar = 800;
   if (camera.aspect < 1) {
-    fogNear *= (1 / camera.aspect);
-    fogFar *= (1 / camera.aspect);
+    fogNear = 400;
+    fogFar = 1000;
   }
-  scene.fog.near = fogNear;
-  scene.fog.far = fogFar;
+
+  if (scene.fog) {
+    scene.fog.near = fogNear;
+    scene.fog.far = fogFar;
+  }
 
   camera.updateProjectionMatrix();
 }
