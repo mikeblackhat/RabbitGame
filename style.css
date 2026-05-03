@@ -230,24 +230,40 @@
   100% { transform: scale(1); box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4); }
 }
 
-#startButton, #versusButton {
+.button-group button {
   font-family: "Voltaire", sans-serif;
-  font-size: clamp(20px, 4vw, 36px);
+  font-size: clamp(18px, 3.5vw, 28px);
   text-transform: uppercase;
   color: #fff;
   border: none;
-  padding: 15px 40px;
+  padding: 14px 40px;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
-  max-width: 400px;
+  max-width: 320px;
+  background-color: #dc5f45;
+  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.3);
 }
 
 #startButton {
-  background-color: #dc5f45;
-  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4);
   animation: pulse 2s infinite ease-in-out;
+  background-color: #dc5f45;
+}
+
+#timeAttackButton {
+  background-color: #5f9042;
+  box-shadow: 0 10px 20px rgba(95, 144, 66, 0.3);
+}
+
+#multiplayerButton {
+  background-color: #3a7bd5;
+  box-shadow: 0 10px 20px rgba(58, 123, 213, 0.3);
+}
+
+.button-group button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
 }
 
 #versusButton {

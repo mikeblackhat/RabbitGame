@@ -659,3 +659,29 @@ function initUI() {
     if (bestScoreContainer) bestScoreContainer.style.display = "block";
   }
 }
+
+function init() {
+  initScreenAnd3D();
+  createLights();
+  createFloor();
+  createHero();
+  createMonster();
+  createFirs();
+  createCarrot();
+  createBonusParticles();
+  createObstacle();
+  createWolfObstacle();
+  createBone();
+  initUI();
+  
+  // Initialize role selection UI listeners (multiplayer.js)
+  if (typeof setupRoleSelectionListeners === 'function') {
+    setupRoleSelectionListeners();
+  }
+
+  resetGame();
+  // Ensure we don't start the loop twice if scene.js or elsewhere calls it
+  // But usually main.js owns the loop.
+}
+
+window.addEventListener("load", init, false);
