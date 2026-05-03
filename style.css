@@ -67,7 +67,7 @@
 #dist {
   position: absolute;
   left: 50%;
-  top: 5%;
+  top: 14px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -76,7 +76,7 @@
   display: flex;
   gap: 40px;
   background: rgba(20, 20, 30, 0.6);
-  padding: 15px 40px;
+  padding: 12px 36px;
   border-radius: 20px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -326,12 +326,12 @@
 /* RACE PROGRESS BAR */
 #raceContainer {
   position: absolute;
-  top: 20px;
+  top: 80px;           /* below the #dist scoreboard */
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
   max-width: 600px;
-  height: 40px;
+  height: 36px;
   background: rgba(20, 20, 30, 0.4);
   border-radius: 20px;
   backdrop-filter: blur(5px);
@@ -647,37 +647,47 @@
 }
 
 /* ─── LIVES DISPLAY ──────────────────────────────────────────────────────────── */
+/* Lives display — top-right corner so it doesn't overlap the distance scoreboard */
 #livesContainer {
   position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 14px;
+  right: 16px;
+  left: auto;
+  transform: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  background: rgba(10, 10, 20, 0.7);
-  padding: 10px 24px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.1);
+  gap: 4px;
+  background: rgba(10, 10, 20, 0.72);
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(8px);
-  z-index: 150;
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 160;
   pointer-events: none;
 }
 
 .livesRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: "Voltaire", sans-serif;
 }
 
-.livesLabel {
-  font-size: 20px;
-}
+.livesLabel { font-size: 18px; }
 
 #rabbitLivesDisplay, #wolfLivesDisplay {
-  font-size: 22px;
-  letter-spacing: 3px;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+/* Full-screen hit flash overlay */
+#hitFlash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  opacity: 0;
 }
 
 /* ─── WOLF OBSTACLE LANE ─────────────────────────────────────────────────────── */

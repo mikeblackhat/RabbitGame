@@ -36,8 +36,8 @@ function updateMonsterPosition() {
   }
 
   var angle = Math.PI * monsterPos;
-  // wolfJumpOffset.value > 0 when the wolf player is mid-jump (defined in wolfMode.js)
-  var jumpBoost = (typeof wolfJumpOffset !== 'undefined') ? wolfJumpOffset.value : 0;
+  // wolfJumpOff.v > 0 when the wolf player is mid-jump (wolfMode.js)
+  var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
   monster.mesh.position.y = -floorRadius + Math.sin(angle) * (floorRadius + 12 + jumpBoost);
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
@@ -311,7 +311,6 @@ function init(event) {
   createCarrot();
   createBonusParticles();
   createObstacle();
-  createWolfHedgehog();  // defined in wolfMode.js — 3D hedgehog for wolf obstacle
   initUI();
 
   gameStatus = "waiting";
