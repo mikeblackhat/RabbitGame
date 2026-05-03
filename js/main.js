@@ -521,8 +521,8 @@ function resetGame() {
 
   if (gameMode === "timeAttack") {
     monsterPos = .56;
-    monsterPosTarget = .9; // Much more distance
-    monsterAcceleration = 0.0005; // Extremely slow wolf
+    monsterPosTarget = 0.75; // Balanced distance
+    monsterAcceleration = 0.002; // Noticeable wolf speed
   } else {
     monsterPos = .56;
     monsterPosTarget = .65;
