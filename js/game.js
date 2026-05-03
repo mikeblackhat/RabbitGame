@@ -1,6 +1,6 @@
 function updateDistance() {
   if (speed < maxSpeed) {
-    speed += delta * 0.8;
+    speed += delta * 0.35; // Much smoother acceleration
   }
 
   distance += delta * speed;

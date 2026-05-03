@@ -14,7 +14,7 @@ var distance = 0;
 var level = 1;
 var heart;
 var initSpeed = 10;
-var maxSpeed = 48;
+var maxSpeed = 42; // Lowered from 48 for better visibility
 var monsterPos = .65;
 var monsterPosTarget = .65;
 var floorRotation = 0;
@@ -54,9 +54,15 @@ function updateMonsterPosition() {
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
 
-  // Dynamic Camera Leaning (UI/UX Skill)
+  // Dynamic Camera Leaning & Zoom (UI/UX Skill)
   var targetCameraX = -Math.cos(angle) * 10;
   camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
+
+  // Zoom out as speed increases to help visibility
+  var zoomFactor = (speed - initSpeed) / (maxSpeed - initSpeed);
+  var targetZ = cameraPosGame + zoomFactor * 60;
+  camera.position.z += (targetZ - camera.position.z) * delta * 1.5;
+
   camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
 
