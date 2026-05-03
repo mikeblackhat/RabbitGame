@@ -83,7 +83,7 @@ function updateMonsterPosition() {
   gameState.monsterPosTarget -= gameState.delta * gameState.monsterAcceleration;
   gameState.monsterPos += (gameState.monsterPosTarget - gameState.monsterPos) * gameState.delta;
 
-  if (gameState.monsterPos < .56) {
+  if (gameState.gameMode === "endless" && gameState.monsterPos < .56) {
     handleMonsterCaught();
   }
 

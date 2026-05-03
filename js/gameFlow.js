@@ -64,7 +64,7 @@ function resetGame() {
   hero.mesh.position.set(0, 0, 0);
 
   if (gameState.gameMode === "timeAttack") {
-    gameState.monsterPosTarget = 0.8;
+    gameState.monsterPosTarget = 0.42; // Wolf starts ahead
     gameState.monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
     gameState.monsterPosTarget = 0.65;
