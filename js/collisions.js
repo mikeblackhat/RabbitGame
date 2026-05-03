@@ -52,7 +52,7 @@ function getBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🥕 +5 SEG', '#5f9042');
   } else {
-    gameState.monsterPosTarget += .025;
+    gameState.proximityTarget += .025;
     _wolfPopup('bonusPopup', '🥕 ¡MÁS DISTANCIA!', '#5f9042');
   }
   playBonusSound();
@@ -65,7 +65,7 @@ function getWolfBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🦴 +5 SEG', '#2575fc');
   } else {
-    gameState.monsterPosTarget -= .025; 
+    gameState.proximityTarget -= .025; 
     _wolfPopup('bonusPopup', '🦴 ¡MÁS VELOCIDAD!', '#2575fc');
   }
   playBonusSound();
@@ -81,7 +81,7 @@ function getMalus() {
   });
 
   if (gameState.gameMode === "endless") {
-    gameState.monsterPosTarget -= .04;
+    gameState.proximityTarget -= .04;
     _wolfPopup('malusPopup', '💥 ¡EL LOBO SE ACERCA!', '#dc5f45');
   } else {
     var txt = document.getElementById('gameoverText');
@@ -110,7 +110,7 @@ function getWolfMalus() {
   });
 
   if (gameState.gameMode === "endless") {
-    gameState.monsterPosTarget += .04;
+    gameState.proximityTarget += .04;
     _wolfPopup('malusPopup', '💥 ¡EL CONEJO ESCAPA!', '#dc5f45');
   } else {
     gameState.timeRemaining -= 3;
