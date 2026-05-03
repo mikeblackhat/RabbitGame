@@ -43,7 +43,32 @@
   opacity: 1;
   transform: translate(-50%, -50%);
   pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
+
+#restartButton {
+  font-family: "Voltaire", sans-serif;
+  font-size: clamp(20px, 4vw, 36px);
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #5f9042;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 20px rgba(95, 144, 66, 0.4);
+  pointer-events: auto;
+}
+
+#restartButton:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05);
+}
+
 
 #gameOverOverlay {
   position: absolute;

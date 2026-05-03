@@ -109,8 +109,14 @@ function createWolfObstacle() {
   wolfObstacle.body.rotation.y = -Math.PI / 2;
   wolfObstacle.mesh.scale.set(1.1, 1.1, 1.1);
   wolfObstacle.mesh.position.y = floorRadius + 4;
-  wolfObstacle.mesh.visible = false;   // Hidden until wolf mode activates
+  wolfObstacle.mesh.visible = false;   
   wolfObstacle.nod();
   scene.add(wolfObstacle.mesh);
+}
+
+function createBone() {
+  bone = new Bone();
+  bone.mesh.visible = false;
+  scene.add(bone.mesh);
 }
 

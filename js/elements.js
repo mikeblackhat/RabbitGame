@@ -189,6 +189,46 @@ Hedgehog.prototype.nod = function () {
   });
 }
 
+// ─── BONE (for the wolf) ─────────────────────────────────────────────────────
+Bone = function () {
+  this.angle = 0;
+  this.mesh = new THREE.Group();
+
+  var bodyGeom = new THREE.CylinderGeometry(2, 2, 12, 6, 1);
+  this.body = new THREE.Mesh(bodyGeom, whiteMat);
+  this.body.rotation.z = Math.PI/2;
+
+  var knobGeom = new THREE.CylinderGeometry(3, 3, 4, 6, 1);
+  
+  this.knob1 = new THREE.Mesh(knobGeom, whiteMat);
+  this.knob1.position.x = -6;
+  this.knob1.position.y = 2;
+  this.knob1.rotation.z = Math.PI/2;
+
+  this.knob2 = this.knob1.clone();
+  this.knob2.position.y = -2;
+
+  this.knob3 = this.knob1.clone();
+  this.knob3.position.x = 6;
+
+  this.knob4 = this.knob2.clone();
+  this.knob4.position.x = 6;
+
+  this.mesh.add(this.body);
+  this.mesh.add(this.knob1);
+  this.mesh.add(this.knob2);
+  this.mesh.add(this.knob3);
+  this.mesh.add(this.knob4);
+
+  this.mesh.traverse(function (object) {
+    if (object instanceof THREE.Mesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+    }
+  });
+}
+
+
 // ─── WOLF HEDGEHOG (same geometry, purple/blue palette) ───────────────────────
 WolfHedgehog = function () {
   this.angle = 0;
