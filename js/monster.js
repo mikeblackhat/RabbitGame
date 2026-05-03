@@ -222,8 +222,8 @@ Monster.prototype.sit = function () {
   TweenMax.to(this.torso.position, sp, {
     y: -5, ease: ease, onComplete: function () {
       _this.nod();
-      if (gameStatus != "enteringName") {
-        gameStatus = "readyToReplay";
+      if (gameState.gameStatus != "enteringName") {
+        gameState.gameStatus = "readyToReplay";
       }
     }
   });

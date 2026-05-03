@@ -41,19 +41,19 @@ function setupMenuListeners() {
     gameState.gameMode = "endless";
     isMultiplayer = false;
     opponentRole = "cpu";
-    myRole = "rabbit"; // default role for solo play
     hideStartScreen();
-    // Directly start the game without role selection UI
-    resetGame();
+    showRoleSelection();
+    setupRoleSelection();
   });
 
   if (timeAttackBtn) {
     timeAttackBtn.addEventListener('click', () => {
       gameState.gameMode = "timeAttack";
       isMultiplayer = false;
-      myRole = "rabbit";
+      opponentRole = "cpu";
       hideStartScreen();
-      resetGame();
+      showRoleSelection();
+      setupRoleSelection();
     });
   }
 
