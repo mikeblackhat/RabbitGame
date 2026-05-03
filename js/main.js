@@ -58,11 +58,15 @@ var bestScore = 0;
 var bestName = "";
 
 function gameOver() {
-  fieldGameOver.className = "show";
-  var overlay = document.getElementById("gameOverOverlay");
-  if (overlay) overlay.className = "show";
-
   var d = Math.floor(distance / 2);
+  var winner = 'wolf'; // Default
+  
+  var txt = document.getElementById('gameoverText');
+  if (txt) {
+    if (txt.innerHTML.includes('CONEJO GANADOR') || txt.innerHTML.includes('ESCPA')) {
+      winner = 'rabbit';
+    }
+  }
 
   if (d > bestScore) {
     gameStatus = "enteringName";
@@ -76,23 +80,8 @@ function gameOver() {
   } else {
     gameStatus = "readyToReplay";
   }
-  monster.sit();
-  hero.hang();
-  stopTimer();
-  monster.heroHolder.add(hero.mesh);
-  TweenMax.to(this, 1, { speed: 0 });
 
-  TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-
-  // Animate the distance score to center above game over text
-  TweenMax.to(fieldDistanceContainer, 1, { top: "20%", scale: 1.2, xPercent: -50, ease: Back.easeOut });
-
-  carrot.mesh.visible = false;
-  obstacle.mesh.visible = false;
-  if (typeof bone !== 'undefined') bone.mesh.visible = false;
-  if (typeof wolfObstacle !== 'undefined') wolfObstacle.mesh.visible = false;
-  stopBGM();
-  playGameOverSound();
+  playEndGameAnimation(winner);
 
   if (isMultiplayer) {
     sendData({ type: 'gameOver', distance: d });
@@ -226,7 +215,7 @@ function getBonus() {
   bonusParticles.mesh.visible = true;
   bonusParticles.explose();
   carrot.angle += Math.PI / 2;
-  
+
   if (gameMode === "timeAttack") {
     timeRemaining += 5;
     updateTimerUI();
@@ -238,14 +227,14 @@ function getBonus() {
 
 function getWolfBonus() {
   bone.mesh.visible = false;
-  
+
   if (gameMode === "timeAttack") {
     timeRemaining += 5;
     updateTimerUI();
   } else {
     monsterPosTarget -= .025; // Wolf moves FORWARD
   }
-  
+
   playBonusSound();
   _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
 }
@@ -253,7 +242,7 @@ function getWolfBonus() {
 function getWolfMalus() {
   obstacle.status = "flying";
   var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-  
+
   TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
   TweenMax.to(obstacle.mesh.rotation, 4, {
     x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
@@ -288,24 +277,24 @@ function getMalus() {
     x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
     onComplete: resetObstacle
   });
-  
+
   if (gameMode === "endless") {
     monsterPosTarget -= .04;
   } else {
     // Time Attack: Any hit is Game Over (Perfect Run mode)
     var txt = document.getElementById('gameoverText');
-    if (txt) txt.innerHTML = '¡CHOCASTE! (MODO PERFECTO) 💥';
+    if (txt) txt.innerHTML = '¡CHOCASTE! 💥';
     gameOver();
     return;
   }
-  
+
   TweenMax.from(this, .5, {
     malusClearAlpha: .5, onUpdate: function () {
       renderer.setClearColor(malusClearColor, malusClearAlpha);
     }
   });
   playMalusSound();
-  
+
   // Count rabbit hedgehog hits (3 = Game Over)
   if (!isMultiplayer) onRabbitHit();
 }
@@ -523,6 +512,10 @@ function resetGame() {
     monsterPos = .56;
     monsterPosTarget = 0.75; // Balanced distance
     monsterAcceleration = 0.002; // Noticeable wolf speed
+  } else if (myRole === 'wolf') {
+    monsterPos = .56;
+    monsterPosTarget = 0.62; // Wolf starts much closer to the action
+    monsterAcceleration = 0.004;
   } else {
     monsterPos = .56;
     monsterPosTarget = .65;
@@ -554,7 +547,7 @@ function resetGame() {
   TweenMax.to(shadowLight.color, 1, { r: pL.r, g: pL.g, b: pL.b });
 
   startBGM();
-  
+
   if (gameMode === "timeAttack") {
     timeRemaining = 45;
     document.getElementById('timerContainer').style.display = 'flex';
@@ -596,18 +589,18 @@ function startTimer() {
     if (gameStatus === "play") {
       timeRemaining--;
       updateTimerUI();
-    if (timeRemaining <= 0) {
-      var txt = document.getElementById('gameoverText');
-      if (txt) {
-        if (gameMode === "timeAttack") {
-          txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
-          txt.style.color = "#5f9042";
-        } else {
-          txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
+      if (timeRemaining <= 0) {
+        var txt = document.getElementById('gameoverText');
+        if (txt) {
+          if (gameMode === "timeAttack") {
+            txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
+            txt.style.color = "#5f9042";
+          } else {
+            txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
+          }
         }
+        gameOver();
       }
-      gameOver();
-    }
     }
   }, 1000);
 }
