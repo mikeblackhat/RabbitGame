@@ -379,8 +379,14 @@ function loop() {
       updateWolfMode(delta);
       updateBonePosition();
       checkCollision();
+      
+      // Center the wolf as the main character (UI/UX skill)
+      var targetRotation = (Math.PI / 2) - (Math.PI * monsterPos);
+      scene.rotation.z += (targetRotation - scene.rotation.z) * delta * 5;
     } else if (myRole === 'rabbit') {
       checkCollision();
+      // Keep rabbit centered
+      scene.rotation.z += (0 - scene.rotation.z) * delta * 5;
     }
   }
 
