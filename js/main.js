@@ -29,6 +29,8 @@ var gameMode = "endless"; // "endless" or "timeAttack"
 var timeRemaining = 45;
 var timerInterval = null;
 var opponentDistance = 0;
+var myRole = 'rabbit';
+var isMultiplayer = false;
 
 
 function updateMonsterPosition() {
@@ -251,10 +253,9 @@ function loop() {
     if (myRole === 'wolf') {
       updateWolfMode(delta);
       updateBonePosition();
-      checkCollision();
-    } else if (myRole === 'rabbit') {
-      checkCollision();
     }
+    
+    checkCollision();
   }
 
   render();
