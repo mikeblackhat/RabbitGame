@@ -124,3 +124,8 @@ function createBone() {
   scene.add(bone.mesh);
 }
 
+function createHeart() {
+  heart = new LifeHeart();
+  heart.mesh.visible = false;
+  scene.add(heart.mesh);
+}
