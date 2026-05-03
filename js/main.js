@@ -196,16 +196,13 @@ function getMalus() {
       obstacle.status = "ready";
       obstacle.body.rotation.y = Math.random() * Math.PI * 2;
       obstacle.angle = -floorRotation - Math.random() * .4;
-
       obstacle.angle = obstacle.angle % (Math.PI * 2);
       obstacle.mesh.rotation.x = 0;
       obstacle.mesh.rotation.y = 0;
       obstacle.mesh.rotation.z = 0;
       obstacle.mesh.position.z = 0;
-
     }
   });
-  //
   monsterPosTarget -= .04;
   TweenMax.from(this, .5, {
     malusClearAlpha: .5, onUpdate: function () {
@@ -213,6 +210,8 @@ function getMalus() {
     }
   });
   playMalusSound();
+  // In wolf mode: count rabbit hedgehog hits (3 = wolf wins)
+  if (myRole === 'wolf' && !isMultiplayer) onRabbitHit();
 }
 
 function updateDistance() {
@@ -381,6 +380,7 @@ function init(event) {
     });
   }
 
+  setupWolfJumpControls(); // defined in wolfMode.js
   loop();
 }
 
@@ -398,6 +398,7 @@ function resetGame() {
   distance = 0;
   rabbitAI.reset();          // defined in wolfMode.js
   wolfBiteCooldown = 0;      // defined in wolfMode.js
+  resetLives();              // defined in wolfMode.js
   if (!isMultiplayer) opponentDistance = 0;
   
   carrot.mesh.visible = true;

@@ -645,4 +645,116 @@
   background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
   box-shadow: 0 0 20px rgba(192, 57, 43, 0.6), 0 6px 20px rgba(0,0,0,0.4);
 }
+
+/* ─── LIVES DISPLAY ──────────────────────────────────────────────────────────── */
+#livesContainer {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(10, 10, 20, 0.7);
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  z-index: 150;
+  pointer-events: none;
+}
+
+.livesRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Voltaire", sans-serif;
+}
+
+.livesLabel {
+  font-size: 20px;
+}
+
+#rabbitLivesDisplay, #wolfLivesDisplay {
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+/* ─── WOLF OBSTACLE LANE ─────────────────────────────────────────────────────── */
+#wolfObstacleContainer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 80%;
+  max-width: 560px;
+  z-index: 180;
+}
+
+#wolfObstacleTrack {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  background: rgba(10, 5, 20, 0.75);
+  border: 2px solid rgba(180, 75, 255, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* time-left progress bar inside the track */
+#wolfObstacleProgressBg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 5px;
+  background: rgba(255,255,255,0.1);
+}
+#wolfObstacleProgress {
+  height: 100%;
+  background: linear-gradient(90deg, #b44bff, #2575fc);
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+/* sliding rock */
+#wolfObstacleRock {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(255,100,50,0.8));
+  animation: rockBob 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes rockBob {
+  from { transform: translateY(-55%); }
+  to   { transform: translateY(-45%); }
+}
+
+/* SALTAR button */
+#wolfJumpBtn {
+  font-family: "Voltaire", sans-serif;
+  font-size: clamp(18px, 4vw, 26px);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  background: linear-gradient(135deg, #b44bff 0%, #6a11cb 100%);
+  border: none;
+  padding: 14px 48px;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(180, 75, 255, 0.5), 0 6px 20px rgba(0,0,0,0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#wolfJumpBtn:active {
+  transform: scale(0.94);
+  box-shadow: 0 0 10px rgba(180, 75, 255, 0.3);
+}
 /* ───────────────────────────────────────────────────────────────────────────── */

@@ -66,16 +66,143 @@ var rabbitAI = {
   }
 };
 
+// ─── LIVES SYSTEM ────────────────────────────────────────────────────────────
+var rabbitHits = 0;
+var wolfHits   = 0;
+var MAX_HITS   = 3;
+
+function onRabbitHit() {
+  rabbitHits++;
+  updateLivesDisplay();
+  if (rabbitHits >= MAX_HITS) {
+    var el = document.getElementById('gameoverInstructions');
+    if (el) el.innerHTML = '¡LOBO GANA! 🐺';
+    gameOver();
+  }
+}
+
+function onWolfHit() {
+  wolfHits++;
+  updateLivesDisplay();
+  _showWolfPopup('wolfMissFeedback', '💥 ¡Chocaste!');
+  if (wolfHits >= MAX_HITS) {
+    var el = document.getElementById('gameoverInstructions');
+    if (el) el.innerHTML = '¡EL CONEJO ESCAPA! 🐰';
+    gameOver();
+  }
+}
+
+function updateLivesDisplay() {
+  var rb = document.getElementById('rabbitLivesDisplay');
+  var wb = document.getElementById('wolfLivesDisplay');
+  if (rb) rb.innerHTML = livesHTML(MAX_HITS - rabbitHits);
+  if (wb) wb.innerHTML = livesHTML(MAX_HITS - wolfHits);
+}
+
+function livesHTML(remaining) {
+  var s = '';
+  for (var i = 0; i < MAX_HITS; i++) s += i < remaining ? '❤️' : '🖤';
+  return s;
+}
+
+function resetLives() {
+  rabbitHits = 0;
+  wolfHits   = 0;
+  wolfObstacleActive   = false;
+  wolfObstacleTimer    = 6;
+  wolfObstacleTimeLeft = 0;
+  var oc = document.getElementById('wolfObstacleContainer');
+  if (oc) oc.style.display = 'none';
+  updateLivesDisplay();
+  var lc = document.getElementById('livesContainer');
+  if (lc) lc.style.display = 'flex';
+}
+
+// ─── WOLF OBSTACLE ───────────────────────────────────────────────────────────
+var wolfObstacleActive   = false;
+var wolfObstacleTimer    = 6;    // seconds until first obstacle appears
+var wolfObstacleTimeLeft = 0;
+var wolfObstacleWindow   = 2.8;  // seconds wolf has to react
+
+function tickWolfObstacle(dt) {
+  if (wolfObstacleTimer > 0) { wolfObstacleTimer -= dt; return; }
+
+  if (!wolfObstacleActive) {
+    wolfObstacleActive   = true;
+    wolfObstacleTimeLeft = wolfObstacleWindow;
+    spawnWolfObstacle();
+  } else {
+    wolfObstacleTimeLeft -= dt;
+    var pct = Math.max(0, wolfObstacleTimeLeft / wolfObstacleWindow);
+    var bar = document.getElementById('wolfObstacleProgress');
+    if (bar) bar.style.width = (pct * 100) + '%';
+    if (wolfObstacleTimeLeft <= 0) {
+      wolfObstacleActive = false;
+      wolfObstacleTimer  = Math.max(4, 8 - (typeof level !== 'undefined' ? level * 0.4 : 0));
+      hideWolfObstacleUI();
+      onWolfHit();
+    }
+  }
+}
+
+function spawnWolfObstacle() {
+  var container = document.getElementById('wolfObstacleContainer');
+  if (!container) return;
+  container.style.display = 'flex';
+  var rock = document.getElementById('wolfObstacleRock');
+  if (rock) {
+    TweenMax.killTweensOf(rock);
+    TweenMax.fromTo(rock, wolfObstacleWindow,
+      { left: '105%' },
+      { left: '-20%', ease: Linear.easeNone }
+    );
+  }
+  var bar = document.getElementById('wolfObstacleProgress');
+  if (bar) bar.style.width = '100%';
+}
+
+function hideWolfObstacleUI() {
+  var container = document.getElementById('wolfObstacleContainer');
+  if (container) container.style.display = 'none';
+  var rock = document.getElementById('wolfObstacleRock');
+  if (rock) TweenMax.killTweensOf(rock);
+}
+
+function wolfJump() {
+  if (!wolfObstacleActive || gameStatus !== 'play') return;
+  wolfObstacleActive = false;
+  wolfObstacleTimer  = Math.max(4, 8 - (typeof level !== 'undefined' ? level * 0.4 : 0));
+  hideWolfObstacleUI();
+  _showWolfPopup('wolfEatFeedback', '⬆️ ¡Saltó!');
+}
+
+function setupWolfJumpControls() {
+  document.addEventListener('keydown', function (e) {
+    if ((e.code === 'Space' || e.key === ' ') && myRole === 'wolf') {
+      e.preventDefault();
+      wolfJump();
+    }
+  });
+  var btn = document.getElementById('wolfJumpBtn');
+  if (btn) {
+    btn.addEventListener('mousedown', function (e) { e.stopPropagation(); wolfJump(); });
+    btn.addEventListener('touchstart', function (e) { e.stopPropagation(); e.preventDefault(); wolfJump(); });
+  }
+}
+
 // ─── WOLF BITE COOLDOWN ───────────────────────────────────────────────────────
 var wolfBiteCooldown = 0;
 
 /**
  * Called every frame from the main loop when myRole === 'wolf'.
- * Decrements the bite cooldown and (in solo mode) runs the rabbit AI.
+ * Decrements the bite cooldown, runs rabbit AI and wolf obstacle.
  */
 function updateWolfMode(dt) {
   if (wolfBiteCooldown > 0) wolfBiteCooldown -= dt;
-  if (!isMultiplayer) rabbitAI.update(dt);
+  if (!isMultiplayer) {
+    rabbitAI.update(dt);
+    tickWolfObstacle(dt);
+  }
 }
 
 // ─── WOLF INPUT ───────────────────────────────────────────────────────────────
