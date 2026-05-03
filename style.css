@@ -581,3 +581,59 @@
     flex-direction: column;
   }
 }
+
+/* ─── WOLF MODE UI ─────────────────────────────────────────────────────────── */
+
+/* Pulsing hint shown when wolf starts: "¡CLIC AL ERIZO!" */
+#wolfHint {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 10, 50, 0.85);
+  border: 2px solid #b44bff;
+  color: #ffffff;
+  font-family: "Voltaire", sans-serif;
+  font-size: clamp(16px, 3.5vw, 22px);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 14px 32px;
+  border-radius: 40px;
+  z-index: 200;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(180, 75, 255, 0.5), 0 4px 15px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  animation: wolfHintPulse 1.2s ease-in-out infinite;
+  transition: opacity 0.8s ease;
+}
+
+@keyframes wolfHintPulse {
+  0%   { box-shadow: 0 0 10px rgba(180, 75, 255, 0.4), 0 4px 15px rgba(0,0,0,0.3); transform: translateX(-50%) scale(1); }
+  50%  { box-shadow: 0 0 30px rgba(180, 75, 255, 0.8), 0 6px 20px rgba(0,0,0,0.4); transform: translateX(-50%) scale(1.04); }
+  100% { box-shadow: 0 0 10px rgba(180, 75, 255, 0.4), 0 4px 15px rgba(0,0,0,0.3); transform: translateX(-50%) scale(1); }
+}
+
+/* Speed boost popup when the wolf eats a hedgehog */
+#wolfEatFeedback {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: #ffffff;
+  font-family: "Voltaire", sans-serif;
+  font-size: clamp(22px, 5vw, 36px);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  padding: 12px 36px;
+  border-radius: 40px;
+  z-index: 201;
+  pointer-events: none;
+  box-shadow: 0 0 25px rgba(106, 17, 203, 0.6), 0 6px 20px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  display: none;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */

@@ -26,6 +26,57 @@ var monsterAcceleration = 0.004;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 
+// ─── RABBIT AI (Wolf solo mode) ──────────────────────────────────────────────
+var rabbitAI = {
+  // How close (angle diff) the hedgehog must be before the AI jumps
+  reactionDistance: 0.55,
+  // How close to a carrot the AI will seek it
+  carrotSeekDistance: 0.7,
+  // Internal cooldown so the AI doesn't spam jumps
+  jumpCooldown: 0,
+  // Make the AI aggressive: it also tries to widen the gap from the wolf
+  evasionBoost: 0,
+
+  update: function (dt) {
+    if (gameStatus !== "play") return;
+    this.jumpCooldown -= dt;
+
+    // Distance between hero and obstacle on the circular floor
+    var heroPosAngle = Math.PI * 0.75; // Hero sits around this angle on the floor
+    var obstAngle = ((floorRotation + obstacle.angle) % (Math.PI * 2));
+    var angleDiff = Math.abs(heroPosAngle - obstAngle);
+    if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+
+    // Jump to dodge the hedgehog when it's close enough
+    if (obstacle.status !== "flying" && angleDiff < this.reactionDistance && this.jumpCooldown <= 0) {
+      if (hero.status !== "jumping") {
+        hero.jump();
+        this.jumpCooldown = 0.8 + Math.random() * 0.4; // random cooldown for human feel
+      }
+    }
+
+    // Seek carrot: jump when close to carrot (gains bonus)
+    var carrotAngleDiff = Math.abs(heroPosAngle - ((floorRotation + carrot.angle) % (Math.PI * 2)));
+    if (carrotAngleDiff > Math.PI) carrotAngleDiff = Math.PI * 2 - carrotAngleDiff;
+    if (carrotAngleDiff < this.carrotSeekDistance && this.jumpCooldown <= 0) {
+      if (hero.status !== "jumping") {
+        hero.jump();
+        this.jumpCooldown = 1.0;
+      }
+    }
+
+    // When wolf is close (monsterPos > 0.62), AI also pushes the gap
+    if (monsterPos > 0.62) {
+      this.evasionBoost += dt * 0.001;
+      monsterPosTarget += this.evasionBoost; // rabbit earns distance bonus under pressure
+      this.evasionBoost = Math.min(this.evasionBoost, 0.003);
+    } else {
+      this.evasionBoost = 0;
+    }
+  }
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 function updateMonsterPosition() {
   monster.run();
   monsterPosTarget -= delta * monsterAcceleration;
@@ -281,9 +332,12 @@ function loop() {
     updateCarrotPosition();
     updateObstaclePosition();
     
-    // Only check collisions for rabbit player
-    if (myRole === 'rabbit') {
-        checkCollision();
+    // In solo wolf mode: rabbit is AI-controlled, check collisions on its behalf
+    if (myRole === 'wolf' && !isMultiplayer) {
+      rabbitAI.update(delta);
+      checkCollision(); // AI rabbit still collects/hits obstacles
+    } else if (myRole === 'rabbit') {
+      checkCollision();
     }
   }
 
@@ -393,7 +447,9 @@ function resetGame() {
   speed = initSpeed;
   level = 0;
   distance = 0;
-  if (!isMultiplayer) opponentDistance = 0; // Reset CPU distance
+  rabbitAI.jumpCooldown = 0;
+  rabbitAI.evasionBoost = 0;
+  if (!isMultiplayer) opponentDistance = 0;
   
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
@@ -415,57 +471,126 @@ function resetGame() {
   updateLevel();
   
   if (myRole === 'wolf') {
-      // Wolf cannot jump
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('touchstart', handleMouseDown);
-      
-      // Wolf uses raycasting for obstacles
-      document.addEventListener('mousedown', handleWolfClick);
+    // Wolf cannot jump — remove rabbit controls
+    document.removeEventListener('mousedown', handleMouseDown);
+    document.removeEventListener('touchstart', handleMouseDown);
+    // Wolf uses raycasting to click obstacles
+    document.addEventListener('mousedown', handleWolfClick);
+    document.addEventListener('touchstart', handleWolfTouchClick);
+    // Show wolf-mode hint
+    showWolfHint();
   } else {
-      // Rabbit controls
-      document.addEventListener('mousedown', handleMouseDown);
-      document.addEventListener('touchstart', handleMouseDown);
-      document.removeEventListener('mousedown', handleWolfClick);
+    // Rabbit controls
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('touchstart', handleMouseDown);
+    document.removeEventListener('mousedown', handleWolfClick);
+    document.removeEventListener('touchstart', handleWolfTouchClick);
+    // Hide wolf hint if switching roles
+    var hint = document.getElementById('wolfHint');
+    if (hint) hint.style.display = 'none';
   }
 }
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 
+// Wolf click via mouse
 function handleWolfClick(event) {
   if (gameStatus !== "play") return;
-  
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  checkWolfRaycast();
+}
 
+// Wolf click via touch
+function handleWolfTouchClick(event) {
+  if (gameStatus !== "play") return;
+  var touch = event.touches[0];
+  mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+  checkWolfRaycast();
+}
+
+function checkWolfRaycast() {
   raycaster.setFromCamera(mouse, camera);
-  
-  // Check intersection with obstacle
   var intersects = raycaster.intersectObject(obstacle.mesh, true);
-  
-  if (intersects.length > 0) {
+  if (intersects.length > 0 && obstacle.status !== "flying") {
     consumeObstacle();
   }
 }
 
 function consumeObstacle() {
-    // Wolf eats the obstacle
-    getMalus(); // Reuse obstacle flying animation
-    
-    // Move wolf forward
-    monsterPosTarget += 0.05;
-    
-    if (isMultiplayer) {
-        sendData({ type: 'consumeObstacle' });
+  // Animate obstacle away (wolf eats it)
+  obstacle.status = "flying";
+  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+  TweenMax.to(obstacle.mesh.position, 3, { x: tx, y: Math.random() * 50 + 20, z: 350, ease: Power4.easeOut });
+  TweenMax.to(obstacle.mesh.rotation, 3, {
+    x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut,
+    onComplete: function () {
+      obstacle.status = "ready";
+      obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+      obstacle.angle = -floorRotation - Math.random() * 0.4;
+      obstacle.angle = obstacle.angle % (Math.PI * 2);
+      obstacle.mesh.rotation.set(0, 0, 0);
+      obstacle.mesh.position.z = 0;
     }
+  });
+
+  // Wolf gains speed boost — push monsterPos forward
+  monsterPosTarget += 0.08;
+  // Clamp so wolf can't teleport past the rabbit
+  if (monsterPosTarget > 0.74) monsterPosTarget = 0.74;
+
+  // Visual flash feedback
+  showWolfEatFeedback();
+  playBonusSound();
+
+  if (isMultiplayer) {
+    sendData({ type: 'consumeObstacle' });
+  }
 }
 
 function onOpponentConsume() {
-    // If we are the rabbit, and the wolf opponent consumed an obstacle
-    // we just see the obstacle fly away and the wolf move closer
-    getMalus();
-    monsterPosTarget += 0.05;
+  // Rabbit player sees the hedgehog fly away (wolf ate it)
+  getMalus();
+  monsterPosTarget += 0.08;
 }
+
+// ─── Wolf mode UI helpers ────────────────────────────────────────────────────
+function showWolfHint() {
+  var hint = document.getElementById('wolfHint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'wolfHint';
+    hint.innerHTML = '🐺 ¡CLIC AL ERIZO para ganar velocidad!';
+    document.body.appendChild(hint);
+  }
+  hint.style.display = 'block';
+  // Auto-hide after 5 seconds
+  clearTimeout(hint._timeout);
+  hint._timeout = setTimeout(function () {
+    hint.style.opacity = '0';
+    setTimeout(function () { hint.style.display = 'none'; hint.style.opacity = '1'; }, 800);
+  }, 5000);
+}
+
+function showWolfEatFeedback() {
+  var fb = document.getElementById('wolfEatFeedback');
+  if (!fb) {
+    fb = document.createElement('div');
+    fb.id = 'wolfEatFeedback';
+    fb.innerHTML = '💨 +VELOCIDAD!';
+    document.body.appendChild(fb);
+  }
+  fb.style.display = 'block';
+  fb.style.opacity = '1';
+  TweenMax.to(fb, 0.1, { scale: 1.3 });
+  TweenMax.to(fb, 0.8, { opacity: 0, y: -40, scale: 1, delay: 0.3, onComplete: function () {
+    fb.style.display = 'none';
+    TweenMax.set(fb, { y: 0 });
+  }});
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function initUI() {
   fieldDistance = document.getElementById("distValue");
