@@ -43,7 +43,7 @@ function getBonus() {
   bonusParticles.mesh.position.copy(carrot.mesh.position);
   bonusParticles.mesh.visible = true;
   bonusParticles.explose();
-  carrot.angle += Math.PI / 2;
+  carrot.angle += Math.PI / 3 + Math.random() * Math.PI; // Random jump instead of fixed 90deg
   
   TweenMax.fromTo(fieldDistanceContainer, 0.3, { scale: 1 }, { scale: 1.2, yoyo: true, repeat: 1 });
 
@@ -131,7 +131,8 @@ function getHeartBonus() {
 function resetObstacle() {
   obstacle.status = "ready";
   obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-  obstacle.angle = -gameState.floorRotation - Math.random() * .4;
+  // Wide range of randomness for re-entry
+  obstacle.angle = -gameState.floorRotation - 0.5 - Math.random() * 1.5;
   obstacle.angle = obstacle.angle % (Math.PI * 2);
   obstacle.mesh.rotation.set(0, 0, 0);
   obstacle.mesh.position.z = 0;

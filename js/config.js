@@ -4,7 +4,7 @@
 
 // Core Constants - Global for compatibility
 var floorRadius = 200;
-var initSpeed = 6;
+var initSpeed = 12;
 var maxSpeed = 48;
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;

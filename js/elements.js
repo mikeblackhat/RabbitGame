@@ -76,6 +76,11 @@ Carrot.prototype.update = function(delta, floorRotation) {
   this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
   this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
   this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+
+  // Auto-respawn if passed behind camera
+  if (floorRotation + this.angle > 3.0) {
+    this.angle = -floorRotation - 0.2 - Math.random() * 0.5;
+  }
 }
 
 Hedgehog = function () {
@@ -379,7 +384,8 @@ Hedgehog.prototype.update = function(delta, floorRotation) {
   if (this.status == "flying") return;
 
   if (floorRotation + this.angle > 3.0) {
-    this.angle = -floorRotation + Math.random() * .3;
+    // Increased randomness: from 0.1 to 1.2 radians gap
+    this.angle = -floorRotation - 0.1 - Math.random() * 1.1;
     this.body.rotation.y = Math.random() * Math.PI * 2;
   }
 

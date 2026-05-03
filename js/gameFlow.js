@@ -122,22 +122,13 @@ function resetGame() {
 
 function setupRoleControls() {
   if (myRole === 'wolf') {
-    document.addEventListener('mousedown', onWolfClick);
-    document.addEventListener('touchstart', onWolfClick);
-    document.removeEventListener('mousedown', handleMouseDown);
-    document.removeEventListener('touchstart', handleMouseDown);
     showWolfHint();
   } else {
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('touchstart', handleMouseDown);
     const hint = document.getElementById('wolfHint');
     if (hint) hint.style.display = 'none';
   }
 }
 
-function onWolfClick() {
-  if (gameState.gameStatus === "play") wolfJump();
-}
 
 function killMonsterTweens() {
   const parts = [

@@ -4,7 +4,7 @@
 
 function updateDistance() {
   if (gameState.speed < gameConfig.maxSpeed) {
-    gameState.speed += gameState.delta * 0.45;
+    gameState.speed += gameState.delta * 0.6;
   }
 
   gameState.distance += gameState.delta * gameState.speed;

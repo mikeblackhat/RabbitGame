@@ -166,8 +166,14 @@ function handleMouseDown(event) {
   if (event.type === 'touchstart') {
     event.preventDefault();
   }
-  if (gameState.gameStatus == "play") hero.jump();
-  else if (gameState.gameStatus == "readyToReplay") {
+  
+  if (gameState.gameStatus === "play") {
+    if (typeof myRole !== 'undefined' && myRole === 'wolf') {
+      wolfJump();
+    } else {
+      hero.jump();
+    }
+  } else if (gameState.gameStatus === "readyToReplay") {
     replay();
   }
 }
