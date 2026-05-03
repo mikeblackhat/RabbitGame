@@ -10,7 +10,7 @@ var notes = [
 var noteIndex = 0;
 
 function playNextBGMNote() {
-  if (gameStatus !== "play") return; // Safety check
+  if (gameState.gameStatus !== "play") return; // Safety check
   if (audioMuted) {
     // Keep scheduling the note without playing it so the loop doesn't break
     var delay = 250 - (speed - 5) * 3.95;
