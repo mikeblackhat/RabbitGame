@@ -68,13 +68,20 @@ function playEndGameAnimation(winner) {
 }
 
 function cinematicEntry() {
-  // Start from further back and zoom in
-  camera.position.z = cameraPosGame + 200;
-  camera.position.y = 100;
+  // Check if camera is already far (preventing snap if we already moved it)
+  // If we are coming from replay(), camera.position.z is likely around 260 (GameOver)
+  // To avoid the "jump away and back", we only set start pos if we are NOT in a transition
+  var dist = Math.abs(camera.position.z - cameraPosGame);
   
-  TweenMax.to(camera.position, 2, {
+  if (dist < 20) {
+    camera.position.z = cameraPosGame + 200;
+    camera.position.y = 100;
+  }
+  
+  TweenMax.to(camera.position, 2.5, {
     z: cameraPosGame,
     y: 30,
+    x: 0,
     ease: Power3.easeInOut,
     onUpdate: function() {
       camera.lookAt(new THREE.Vector3(0, 30, 0));

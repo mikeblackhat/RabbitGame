@@ -66,6 +66,7 @@ function updateMonsterPosition() {
   camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
 
+
 var bestScore = 0;
 var bestName = "";
 
@@ -132,7 +133,7 @@ function replay() {
 
   monster.tail.rotation.y = 0;
 
-  TweenMax.to(camera.position, 3, { z: cameraPosGame, x: 0, y: 30, ease: Power4.easeInOut });
+  // Camera will be handled by cinematicEntry or the resetGame flow to avoid redundant jumps
   TweenMax.to(monster.torso.rotation, 2, { x: 0, ease: Power4.easeInOut });
   TweenMax.to(monster.torso.position, 2, { y: 0, ease: Power4.easeInOut });
   TweenMax.to(monster.pawFL.rotation, 2, { x: 0, ease: Power4.easeInOut });
