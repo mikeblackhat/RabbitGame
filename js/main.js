@@ -52,6 +52,11 @@ function updateMonsterPosition() {
   monster.mesh.position.y = -floorRadius + Math.sin(angle) * (floorRadius + 12 + jumpBoost);
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
+
+  // Dynamic Camera Leaning (UI/UX Skill)
+  var targetCameraX = -Math.cos(angle) * 10;
+  camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
+  camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
 
 var bestScore = 0;
@@ -215,10 +220,14 @@ function getBonus() {
   bonusParticles.mesh.visible = true;
   bonusParticles.explose();
   carrot.angle += Math.PI / 2;
+  
+  // UI Feedback: Flash distance container
+  TweenMax.fromTo(fieldDistanceContainer, 0.3, { scale: 1 }, { scale: 1.2, yoyo: true, repeat: 1 });
 
   if (gameMode === "timeAttack") {
     timeRemaining += 5;
     updateTimerUI();
+    _wolfPopup('wolfEatEl', '🥕 +5 SEG', '#5f9042');
   } else {
     monsterPosTarget += .025;
   }
@@ -547,7 +556,8 @@ function resetGame() {
   TweenMax.to(shadowLight.color, 1, { r: pL.r, g: pL.g, b: pL.b });
 
   startBGM();
-
+  cinematicEntry();
+  
   if (gameMode === "timeAttack") {
     timeRemaining = 45;
     document.getElementById('timerContainer').style.display = 'flex';

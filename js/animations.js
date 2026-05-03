@@ -66,3 +66,18 @@ function playEndGameAnimation(winner) {
     });
   }, 500);
 }
+
+function cinematicEntry() {
+  // Start from further back and zoom in
+  camera.position.z = cameraPosGame + 200;
+  camera.position.y = 100;
+  
+  TweenMax.to(camera.position, 2, {
+    z: cameraPosGame,
+    y: 30,
+    ease: Power3.easeInOut,
+    onUpdate: function() {
+      camera.lookAt(new THREE.Vector3(0, 30, 0));
+    }
+  });
+}
