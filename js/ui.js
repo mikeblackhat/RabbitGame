@@ -136,7 +136,33 @@ function updateTimerUI() {
   document.getElementById('timerValue').innerHTML = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 }
 
+function showGameInstructions(role) {
+  const instr = document.getElementById("instructions");
+  if (!instr) return;
+
+  if (role === 'wolf') {
+    instr.innerHTML = 'Haz click para morder / saltar <span class="lightInstructions">Toma los huesos / evita los erizos</span>';
+  } else {
+    instr.innerHTML = 'Haz click para saltar <span class="lightInstructions">Toma las zanahorias / evita los erizos</span>';
+  }
+
+  instr.style.display = 'block';
+  instr.style.opacity = '1';
+
+  // Hide after 5 seconds
+  setTimeout(() => {
+    TweenMax.to(instr, 1, { 
+      opacity: 0, 
+      onComplete: () => { instr.style.display = 'none'; } 
+    });
+  }, 5000);
+}
+
 function showGameOverUI(winner, distance) {
+  // Hide instructions if they were still visible
+  const instr = document.getElementById("instructions");
+  if (instr) instr.style.display = 'none';
+
   if (distance > gameState.bestScore) {
     gameState.gameStatus = "enteringName";
     document.getElementById("newHighScoreScreen").style.display = "flex";

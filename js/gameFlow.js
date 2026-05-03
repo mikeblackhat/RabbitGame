@@ -117,6 +117,7 @@ function resetGame() {
 
   updateLevel();
   setupRoleControls();
+  showGameInstructions(myRole);
 }
 
 function setupRoleControls() {
