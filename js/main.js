@@ -8,7 +8,7 @@ var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane,
   renderer, container, controls, clock;
 
 // Game Objects
-var hero, monster, floor, floorShadow, floorGrass, carrot, obstacle, wolfObstacle, bone, bonusParticles, heart;
+var hero, heroHolder, monster, floor, floorShadow, floorGrass, carrot, obstacle, wolfObstacle, bone, bonusParticles, heart;
 
 // UI Elements (populated in ui.js)
 var fieldDistance, fieldDistanceContainer, fieldGameOver;
@@ -58,6 +58,7 @@ function loop() {
     updateDistance();
 
     // Local updates
+    updateHeroPosition();
     updateMonsterPosition();
 
     // Object updates (encapsulated in js/elements.js)
@@ -78,12 +79,19 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+function updateHeroPosition() {
+  const angle = Math.PI * gameState.heroPos;
+  heroHolder.position.y = -gameConfig.floorRadius + Math.sin(angle) * (gameConfig.floorRadius);
+  heroHolder.position.x = Math.cos(angle) * (gameConfig.floorRadius);
+  heroHolder.rotation.z = -Math.PI / 2 + angle;
+}
+
 function updateMonsterPosition() {
   monster.run();
   gameState.monsterPosTarget -= gameState.delta * gameState.monsterAcceleration;
   gameState.monsterPos += (gameState.monsterPosTarget - gameState.monsterPos) * gameState.delta;
 
-  if (gameState.gameMode === "endless" && gameState.monsterPos < .56) {
+  if (gameState.gameMode === "endless" && gameState.monsterPos < gameState.heroPos + 0.06) {
     handleMonsterCaught();
   }
 

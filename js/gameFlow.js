@@ -64,16 +64,20 @@ function resetGame() {
   hero.mesh.position.set(0, 0, 0);
 
   if (gameState.gameMode === "timeAttack") {
-    gameState.monsterPosTarget = 0.42; // Wolf starts ahead
+    gameState.heroPos = 0.5;
+    gameState.monsterPosTarget = 0.8;
     gameState.monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
-    gameState.monsterPosTarget = 0.65;
+    gameState.heroPos = 0.35; // Rabbit is ahead
+    gameState.monsterPosTarget = 0.5; // Wolf is protagonist (top)
     gameState.monsterAcceleration = 0.003;
   } else {
-    gameState.monsterPosTarget = 0.75;
+    gameState.heroPos = 0.5; // Rabbit is protagonist (top)
+    gameState.monsterPosTarget = 0.75; // Wolf is behind
     gameState.monsterAcceleration = 0.0035;
   }
   
+  gameState.heroPosTarget = gameState.heroPos;
   gameState.monsterPos = gameState.monsterPosTarget;
   gameState.speed = gameConfig.initSpeed;
   gameState.level = 0;

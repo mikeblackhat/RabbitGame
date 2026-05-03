@@ -44,10 +44,15 @@ function createFloor() {
 
 }
 
+var heroHolder;
 function createHero() {
   hero = new Hero();
   hero.mesh.rotation.y = Math.PI / 2;
-  scene.add(hero.mesh);
+  
+  heroHolder = new THREE.Group();
+  heroHolder.add(hero.mesh);
+  scene.add(heroHolder);
+  
   hero.nod();
 }
 

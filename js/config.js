@@ -20,6 +20,8 @@ window.gameState = {
   speed: 0,
   distance: 0,
   level: 1,
+  heroPos: 0.5,
+  heroPosTarget: 0.5,
   monsterPos: 0.65,
   monsterPosTarget: 0.65,
   monsterAcceleration: 0.004,
