@@ -59,20 +59,21 @@
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* RACE PROGRESS BAR OVERHAUL */
+/* RACE PROGRESS BAR - RESTORED & ENHANCED */
 #raceContainer {
   position: absolute;
   top: 130px;
   left: 50%;
   transform: translateX(-50%);
-  width: 320px;
+  width: 80%;
+  max-width: 500px;
   height: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 20, 0.5);
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  z-index: 10;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  backdrop-filter: blur(15px);
+  z-index: 100;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.2);
 }
 
 #raceLine {
@@ -81,7 +82,6 @@
   height: 100%;
 }
 
-/* The subtle inner track */
 #raceLine::before {
   content: '';
   position: absolute;
@@ -89,7 +89,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateY(-50%);
 }
 
@@ -97,18 +97,27 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
+  padding: 4px 14px;
+  border-radius: 20px;
   font-family: "Voltaire", sans-serif;
-  font-size: 16px;
   font-weight: bold;
+  font-size: 13px;
   color: white;
   white-space: nowrap;
-  transition: left 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
-  z-index: 2;
-  filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+  transition: left 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-#p1Marker { color: #5f9042; text-shadow: 0 0 10px rgba(95, 144, 66, 0.5); }
-#p2Marker { color: #dc5f45; text-shadow: 0 0 10px rgba(220, 95, 69, 0.5); }
+#p1Marker { 
+  background: linear-gradient(135deg, #5f9042 0%, #4a7233 100%); 
+  border: 1px solid rgba(255,255,255,0.2);
+}
+#p2Marker { 
+  background: linear-gradient(135deg, #dc5f45 0%, #b44b39 100%); 
+  border: 1px solid rgba(255,255,255,0.2);
+}
 
 /* LIVES CONTAINER */
 #livesContainer {

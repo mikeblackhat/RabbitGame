@@ -24,17 +24,23 @@ html, body {
 #instructions {
   position: absolute;
   width: 100%;
-  bottom: 0;
-  margin-bottom: 50px;
+  bottom: 50px;
   font-family: "Voltaire", sans-serif;
-  font-size: 16px;
-  color: #b44b39;
   text-transform: uppercase;
   text-align: center;
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  pointer-events: none;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 2px;
+}
+
+.lightInstructions {
+  display: block;
+  font-size: 14px;
+  color: #dc5f45;
+  margin-top: 5px;
+  letter-spacing: 1px;
 }
 
 #audioToggle {

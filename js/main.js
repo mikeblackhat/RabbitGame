@@ -174,8 +174,9 @@ function updateHeartPosition() {
   if (!heart || !heart.mesh.visible) return;
   heart.mesh.rotation.y += delta * 6;
   heart.mesh.rotation.z = Math.PI / 2 - (floorRotation + heart.angle);
-  heart.mesh.position.y = -floorRadius + Math.sin(floorRotation + heart.angle) * (floorRadius + 50);
-  heart.mesh.position.x = Math.cos(floorRotation + heart.angle) * (floorRadius + 50);
+  // Elevation set to 40 units (jump required)
+  heart.mesh.position.y = -floorRadius + Math.sin(floorRotation + heart.angle) * (floorRadius + 40);
+  heart.mesh.position.x = Math.cos(floorRotation + heart.angle) * (floorRadius + 40);
 }
 
 function updateObstaclePosition() {
