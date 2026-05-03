@@ -71,6 +71,13 @@ Carrot = function () {
   });
 }
 
+Carrot.prototype.update = function(delta, floorRotation) {
+  this.mesh.rotation.y += delta * 6;
+  this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+}
+
 Hedgehog = function () {
   this.angle = 0;
   this.status = "ready";
@@ -366,6 +373,34 @@ WolfHedgehog.prototype.nod = function () {
   TweenMax.to(this.head.rotation, speed, {
     y: angle, onComplete: function () { _this.nod(); }
   });
+}
+
+Hedgehog.prototype.update = function(delta, floorRotation) {
+  if (this.status == "flying") return;
+
+  if (floorRotation + this.angle > 3.0) {
+    this.angle = -floorRotation + Math.random() * .3;
+    this.body.rotation.y = Math.random() * Math.PI * 2;
+  }
+
+  this.mesh.rotation.z = floorRotation + this.angle - Math.PI / 2;
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 3);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 3);
+}
+
+Bone.prototype.update = function(delta, floorRotation) {
+  this.mesh.rotation.y += delta * 6;
+  this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+}
+
+LifeHeart.prototype.update = function(delta, floorRotation) {
+  if (!this.mesh.visible) return;
+  this.mesh.rotation.y += delta * 6;
+  this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
 }
 
 function removeParticle(p) {

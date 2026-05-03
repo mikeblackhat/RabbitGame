@@ -1,35 +1,24 @@
 /**
- * WOLF MODE MODULE  (rewrite v3)
- * ─────────────────────────────────────────────────────────────────────────────
- *  RABBIT (IA)
- *    • Esquiva automáticamente el erizo del conejo (salto al ángulo correcto)
- *    • Salta para recoger zanahorias
- *    • 3 golpes de erizo → muere → LOBO GANA
- *
- *  LOBO (tú)
- *    • CLIC en cualquier parte → morder el erizo del track → gana velocidad
- *    • ESPACIO / botón SALTAR → saltar el obstáculo periódico (erizo propio)
- *    • 3 fallos al saltar → CONEJO ESCAPA
- * ─────────────────────────────────────────────────────────────────────────────
+ * WOLF MODE MODULE
  */
 
 var rabbitAI = {
-  reactionDist : 0.75, // Reacts much earlier
+  reactionDist : 0.75,
   jumpCooldown : 0,
   evasionBoost : 0,
 
   update: function (dt) {
-    if (gameStatus !== 'play') return;
+    if (gameState.gameStatus !== 'play') return;
     this.jumpCooldown -= dt;
 
-    // ── Dynamic reaction based on speed ──────────────────────────────────────
-    var currentSpeedFactor = (speed / initSpeed);
+    // Dynamic reaction based on speed
+    var currentSpeedFactor = (gameState.speed / gameConfig.initSpeed);
     var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.1);
 
-    // ── Detected obstacles ────────────────────────────────────────────────────
+    // Detected obstacles
     var heroAngle  = Math.PI / 2;
-    var obstAngle  = (floorRotation + obstacle.angle) % (Math.PI * 2);
-    var carrotAngle = (floorRotation + carrot.angle) % (Math.PI * 2);
+    var obstAngle  = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
+    var carrotAngle = (gameState.floorRotation + carrot.angle) % (Math.PI * 2);
 
     var obstDiff   = Math.abs(heroAngle - obstAngle);
     if (obstDiff > Math.PI) obstDiff = Math.PI * 2 - obstDiff;
@@ -37,18 +26,17 @@ var rabbitAI = {
     var carrotDiff = Math.abs(heroAngle - carrotAngle);
     if (carrotDiff > Math.PI) carrotDiff = Math.PI * 2 - carrotDiff;
 
-    // ── 1. Priority: Avoid Hedgehogs ──────────────────────────────────────────
-    // AI now has near-perfect dodging with a very short cooldown
+    // 1. Priority: Avoid Hedgehogs
     if (obstacle.status !== 'flying' && obstDiff < adjustedReactionDist && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        this.jumpCooldown = 0.3; // Very quick recovery
+        this.jumpCooldown = 0.3;
       }
       return; 
     }
 
-    // ── 2. Secondary: Get Carrots (Only if very safe) ─────────────────────────
-    var landingZoneObstAngle = (floorRotation + obstacle.angle + 0.3) % (Math.PI * 2); 
+    // 2. Secondary: Get Carrots
+    var landingZoneObstAngle = (gameState.floorRotation + obstacle.angle + 0.3) % (Math.PI * 2); 
     var landingObstDiff = Math.abs(heroAngle - landingZoneObstAngle);
     if (landingObstDiff > Math.PI) landingObstDiff = Math.PI * 2 - landingObstDiff;
 
@@ -59,11 +47,10 @@ var rabbitAI = {
       }
     }
 
-    // ── 3. Strategic: Escape Boost (Almost impossible to catch) ───────────────
-    // If the wolf is close (< 0.65), the rabbit AI generates massive distance
-    if (monsterPos < 0.65) {
-      this.evasionBoost += dt * 0.005; // Rapidly increases gap
-      monsterPosTarget  += this.evasionBoost;
+    // 3. Strategic: Escape Boost
+    if (gameState.monsterPos < 0.65) {
+      this.evasionBoost += dt * 0.005;
+      gameState.monsterPosTarget  += this.evasionBoost;
       this.evasionBoost  = Math.min(this.evasionBoost, 0.015);
     } else {
       this.evasionBoost = 0;
@@ -76,7 +63,7 @@ var rabbitAI = {
   }
 };
 
-// ─── VIDAS ───────────────────────────────────────────────────────────────────
+// LIVES
 var rabbitHits = 0;
 var wolfHits   = 0;
 var MAX_HITS   = 3;
@@ -134,35 +121,32 @@ function resetLives() {
   updateLivesDisplay();
   var lc = document.getElementById('livesContainer');
   if (lc) lc.style.display = 'flex';
-  hideWolfObstacleUI();
   boneTimer       = 0;
   heartSpawnTimer = 3;
   wolfIsJumping   = false;
   wolfJumpOff.v   = 0;
 }
 
-// ─── ITEMS LOGIC (Bones & Hearts) ──────────────────────────────────────────
+// ITEMS LOGIC
 var boneTimer = 0;
 var heartSpawnTimer = 3;
 
 function tickWolfItems(dt) {
-  // Bones (Always spawn for wolf)
   if (!bone.mesh.visible) {
     boneTimer -= dt;
     if (boneTimer <= 0) {
       bone.mesh.visible = true;
-      bone.angle = -floorRotation + Math.PI * 0.8;
+      bone.angle = -gameState.floorRotation + Math.PI * 0.8;
       boneTimer = 2 + Math.random() * 3;
     }
   }
 
-  // Hearts (Only if rabbit is at 1 life)
   if (heart && !heart.mesh.visible) {
     if (rabbitHits >= MAX_HITS - 1) {
       heartSpawnTimer -= dt;
       if (heartSpawnTimer <= 0) {
         heart.mesh.visible = true;
-        heart.angle = -floorRotation + Math.PI * 0.8;
+        heart.angle = -gameState.floorRotation + Math.PI * 0.8;
         heartSpawnTimer = 10 + Math.random() * 5;
       }
     } else {
@@ -176,16 +160,16 @@ function healRabbit() {
   updateLivesDisplay();
 }
 
-function onOpponentConsume() { getMalus(); monsterPosTarget -= 0.07; }
+function onOpponentConsume() { getMalus(); gameState.monsterPosTarget -= 0.07; }
 
 var wolfJumpOff  = { v: 0 };
 var wolfIsJumping = false;
 
 function wolfJump() {
-  if (gameStatus !== 'play') return;
+  if (gameState.gameStatus !== 'play') return;
   if (wolfIsJumping) return;
   wolfIsJumping = true;
-  var spd = Math.max(0.35, 7 / Math.max(speed || 5, 1));
+  var spd = Math.max(0.35, 7 / Math.max(gameState.speed || 5, 1));
   TweenMax.killTweensOf(wolfJumpOff);
   TweenMax.to(wolfJumpOff, spd / 2, { v: 40, ease: Power2.easeOut });
   TweenMax.to(wolfJumpOff, spd / 2, {
@@ -194,12 +178,6 @@ function wolfJump() {
   });
 }
 
-function hideWolfObstacleUI() {
-  // No longer used but kept for compatibility with other calls if any
-}
-
-
-// ─── LOOP UPDATE (llamado desde main.js) ─────────────────────────────────────
 function updateWolfMode(dt) {
   if (!isMultiplayer) {
     rabbitAI.update(dt);
@@ -207,27 +185,13 @@ function updateWolfMode(dt) {
   }
 }
 
-// ─── CONTROLES ───────────────────────────────────────────────────────────────
-function handleWolfClick(e) {
-  if (gameStatus !== 'play') return;
-  wolfBiteAttempt();
-}
-
-function handleWolfTouchClick(e) {
-  if (gameStatus !== 'play') return;
-  e.preventDefault();
-  wolfBiteAttempt();
-}
-
 function setupWolfJumpControls() {
-  // Keydown for space
   document.addEventListener('keydown', function (e) {
     if (myRole !== 'wolf') return;
     if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); wolfJump(); }
   });
 }
 
-// ─── UI HELPERS ──────────────────────────────────────────────────────────────
 function showWolfHint() {
   var h = document.getElementById('wolfHint');
   if (!h) {

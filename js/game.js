@@ -1,51 +1,86 @@
+/**
+ * Core Game Mechanics
+ */
+
 function updateDistance() {
-  if (speed < maxSpeed) {
-    speed += delta * 0.35; // Much smoother acceleration
+  if (gameState.speed < gameConfig.maxSpeed) {
+    gameState.speed += gameState.delta * 0.45;
   }
 
-  distance += delta * speed;
-  var d = distance / 2;
+  gameState.distance += gameState.delta * gameState.speed;
+  const d = gameState.distance / 1.5;
   fieldDistance.innerHTML = Math.floor(d);
 
-  if (Math.floor(d) >= level * 1000) {
+  if (Math.floor(d) >= gameState.level * 1000) {
     updateLevel();
   }
 
   if (isMultiplayer) {
     broadcastDistance(d);
   } else {
-    opponentDistance += delta * (initSpeed + level * 2);
+    gameState.opponentDistance += gameState.delta * (gameConfig.initSpeed + gameState.level * 2);
   }
 }
 
 function startTimer() {
   stopTimer();
-  timerInterval = setInterval(function () {
-    if (gameStatus === "play") {
-      timeRemaining--;
+  gameState.timerInterval = setInterval(() => {
+    if (gameState.gameStatus === "play") {
+      gameState.timeRemaining--;
       updateTimerUI();
-      if (timeRemaining <= 0) {
-        var txt = document.getElementById('gameoverText');
-        if (txt) {
-          if (gameMode === "timeAttack") {
-            txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
-            txt.style.color = "#5f9042";
-          } else {
-            txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
-          }
-        }
-        gameOver();
+      if (gameState.timeRemaining <= 0) {
+        handleTimerEnd();
       }
     }
   }, 1000);
 }
 
-function stopTimer() {
-  if (timerInterval) clearInterval(timerInterval);
+function handleTimerEnd() {
+  const txt = document.getElementById('gameoverText');
+  if (txt) {
+    if (gameState.gameMode === "timeAttack") {
+      txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
+      txt.style.color = "#5f9042";
+    } else {
+      txt.innerHTML = '¡PERDISTE!';
+      txt.style.color = "#bd3f4f";
+    }
+  }
+  gameOver();
 }
 
-function updateTimerUI() {
-  var m = Math.floor(timeRemaining / 60);
-  var s = timeRemaining % 60;
-  document.getElementById('timerValue').innerHTML = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+function stopTimer() {
+  if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+}
+
+function updateLevel() {
+  gameState.level++;
+
+  // Alternate between Day and Night every level (100m)
+  let newBg, newLightColor;
+  if (gameState.level % 2 === 0) { // Night
+    newBg = "#1a1a2e";
+    newLightColor = "#4a4e69";
+  } else { // Day
+    newBg = "#dbe6e6";
+    newLightColor = "#ffffff";
+  }
+
+  if (newBg) {
+    applyThemeTransition(newBg, newLightColor);
+  }
+}
+
+function applyThemeTransition(bg, light) {
+  // Animate DOM Background
+  TweenMax.to(document.getElementById("world"), 5, { backgroundColor: bg });
+  
+  // Animate 3D Fog
+  const parsedColor = new THREE.Color(bg);
+  TweenMax.to(scene.fog.color, 5, { r: parsedColor.r, g: parsedColor.g, b: parsedColor.b });
+  
+  // Animate Lights
+  const parsedLight = new THREE.Color(light);
+  TweenMax.to(globalLight.color, 5, { r: parsedLight.r, g: parsedLight.g, b: parsedLight.b });
+  TweenMax.to(shadowLight.color, 5, { r: parsedLight.r, g: parsedLight.g, b: parsedLight.b });
 }

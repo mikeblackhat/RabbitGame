@@ -166,8 +166,8 @@ function handleMouseDown(event) {
   if (event.type === 'touchstart') {
     event.preventDefault();
   }
-  if (gameStatus == "play") hero.jump();
-  else if (gameStatus == "readyToReplay") {
+  if (gameState.gameStatus == "play") hero.jump();
+  else if (gameState.gameStatus == "readyToReplay") {
     replay();
   }
 }

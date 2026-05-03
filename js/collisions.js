@@ -4,33 +4,33 @@
  */
 
 function checkCollision() {
-  // Rabbit collisions (Always check, whether player is rabbit or AI)
+  // Rabbit collisions
   var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
   var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-  if (db_rabbit.length() < collisionBonus) {
+  if (db_rabbit.length() < gameState.collisionBonus) {
     getBonus();
   }
 
   var dh_rabbit = hero.mesh.position.clone().sub(heart.mesh.position.clone());
-  if (dh_rabbit.length() < collisionBonus && heart.mesh.visible) {
+  if (dh_rabbit.length() < gameState.collisionBonus && heart.mesh.visible) {
     getHeartBonus();
   }
 
-  if (dm_rabbit.length() < collisionObstacle && obstacle.status != "flying") {
+  if (dm_rabbit.length() < gameState.collisionObstacle && obstacle.status != "flying") {
     getMalus();
   }
 
-  // Wolf collisions (Only if player is wolf)
+  // Wolf collisions
   if (myRole === 'wolf') {
     var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
     var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    if (db_wolf.length() < collisionBonus && (typeof bone !== 'undefined' && bone.mesh.visible)) {
+    if (db_wolf.length() < gameState.collisionBonus && (typeof bone !== 'undefined' && bone.mesh.visible)) {
       getWolfBonus();
     }
 
-    if (dm_wolf.length() < collisionObstacle && obstacle.status != "flying") {
+    if (dm_wolf.length() < gameState.collisionObstacle && obstacle.status != "flying") {
       var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
       if (jumpBoost < 5) { // Not high enough in jump
         getWolfMalus();
@@ -47,23 +47,23 @@ function getBonus() {
   
   TweenMax.fromTo(fieldDistanceContainer, 0.3, { scale: 1 }, { scale: 1.2, yoyo: true, repeat: 1 });
 
-  if (gameMode === "timeAttack") {
-    timeRemaining += 5;
+  if (gameState.gameMode === "timeAttack") {
+    gameState.timeRemaining += 5;
     updateTimerUI();
     _wolfPopup('wolfEatEl', '🥕 +5 SEG', '#5f9042');
   } else {
-    monsterPosTarget += .025;
+    gameState.monsterPosTarget += .025;
   }
   playBonusSound();
 }
 
 function getWolfBonus() {
   bone.mesh.visible = false;
-  if (gameMode === "timeAttack") {
-    timeRemaining += 5;
+  if (gameState.gameMode === "timeAttack") {
+    gameState.timeRemaining += 5;
     updateTimerUI();
   } else {
-    monsterPosTarget -= .025; 
+    gameState.monsterPosTarget -= .025; 
   }
   playBonusSound();
   _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
@@ -78,8 +78,8 @@ function getMalus() {
     onComplete: resetObstacle
   });
 
-  if (gameMode === "endless") {
-    monsterPosTarget -= .04;
+  if (gameState.gameMode === "endless") {
+    gameState.monsterPosTarget -= .04;
   } else {
     var txt = document.getElementById('gameoverText');
     if (txt) txt.innerHTML = '¡CHOCASTE! 💥';
@@ -87,9 +87,9 @@ function getMalus() {
     return;
   }
   
-  TweenMax.from(this, .5, {
+  TweenMax.from(gameState, .5, {
     malusClearAlpha: .5, onUpdate: function () {
-      renderer.setClearColor(malusClearColor, malusClearAlpha);
+      renderer.setClearColor(gameConfig.malusClearColor, gameState.malusClearAlpha);
     }
   });
   playMalusSound();
@@ -105,10 +105,10 @@ function getWolfMalus() {
     onComplete: resetObstacle
   });
 
-  if (gameMode === "endless") {
-    monsterPosTarget += .04;
+  if (gameState.gameMode === "endless") {
+    gameState.monsterPosTarget += .04;
   } else {
-    timeRemaining -= 3;
+    gameState.timeRemaining -= 3;
     updateTimerUI();
   }
   onWolfHit();
@@ -125,7 +125,7 @@ function getHeartBonus() {
 function resetObstacle() {
   obstacle.status = "ready";
   obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-  obstacle.angle = -floorRotation - Math.random() * .4;
+  obstacle.angle = -gameState.floorRotation - Math.random() * .4;
   obstacle.angle = obstacle.angle % (Math.PI * 2);
   obstacle.mesh.rotation.set(0, 0, 0);
   obstacle.mesh.position.z = 0;
