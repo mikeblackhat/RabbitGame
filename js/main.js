@@ -35,6 +35,7 @@ function updateMonsterPosition() {
   monster.run();
   monsterPosTarget -= delta * monsterAcceleration;
   monsterPos += (monsterPosTarget - monsterPos) * delta;
+  
   if (monsterPos < .56) {
     if (typeof myRole !== 'undefined' && myRole === 'wolf') {
       var txt = document.getElementById('gameoverText');
@@ -46,15 +47,38 @@ function updateMonsterPosition() {
     gameOver();
   }
 
-  var angle = Math.PI * monsterPos;
+  // Visual Repositioning for Wolf Mode (UI/UX Skill)
+  // We keep the logical monsterPos but shift the meshes so Wolf is centered
+  var visualMonsterPos = monsterPos;
+  var visualHeroAngle = 0.5;
+
+  if (myRole === 'wolf') {
+    var offset = monsterPos - 0.5; 
+    visualMonsterPos = 0.5;      // Wolf stays at the top/center
+    visualHeroAngle = 0.5 - offset; // Rabbit stays ahead
+  }
+
+  var angle = Math.PI * visualMonsterPos;
   // wolfJumpOff.v > 0 when the wolf player is mid-jump (wolfMode.js)
   var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
   monster.mesh.position.y = -floorRadius + Math.sin(angle) * (floorRadius + 12 + jumpBoost);
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
 
-  // Dynamic Camera Leaning (UI/UX Skill)
-  var targetCameraX = -Math.cos(angle) * 10;
+  // Update Hero Position for Wolf Mode
+  if (myRole === 'wolf') {
+    var hAngle = Math.PI * visualHeroAngle;
+    hero.mesh.position.y = -floorRadius + Math.sin(hAngle) * (floorRadius);
+    hero.mesh.position.x = Math.cos(hAngle) * (floorRadius);
+    hero.mesh.rotation.z = -Math.PI / 2 + hAngle;
+  } else {
+    hero.mesh.position.set(0, 0, 0);
+    hero.mesh.rotation.z = 0;
+  }
+
+  // Dynamic Camera Leaning
+  var camAngle = Math.PI * visualMonsterPos;
+  var targetCameraX = -Math.cos(camAngle) * 10;
   camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
   camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
@@ -521,7 +545,7 @@ function resetGame() {
     monsterPosTarget = 0.75; // Balanced lead for rabbit
     monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
-    monsterPosTarget = 0.62; // Intense chase (Wolf starts close)
+    monsterPosTarget = 0.65; // Logical starting distance
     monsterAcceleration = 0.004;
   } else {
     monsterPosTarget = 0.65; // Standard solo/endless gap
