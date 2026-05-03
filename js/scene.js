@@ -51,6 +51,21 @@ var skinMat = new THREE.MeshPhongMaterial({
   shading: THREE.FlatShading
 });
 
+// Wolf obstacle hedgehog materials (purple / indigo theme)
+var wolfSpikeMat = new THREE.MeshPhongMaterial({
+  color: 0x6a11cb,
+  shading: THREE.FlatShading,
+});
+var wolfBodyMat = new THREE.MeshPhongMaterial({
+  color: 0x2575fc,
+  shading: THREE.FlatShading,
+});
+var wolfHeadMat = new THREE.MeshPhongMaterial({
+  color: 0x9b5de5,
+  shading: THREE.FlatShading,
+});
+
+
 
 // OTHER VARIABLES
 

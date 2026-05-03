@@ -77,6 +77,7 @@ function gameOver() {
 
   carrot.mesh.visible = false;
   obstacle.mesh.visible = false;
+  if (typeof wolfObstacle !== 'undefined') wolfObstacle.mesh.visible = false;
   stopBGM();
   playGameOverSound();
 
@@ -311,6 +312,7 @@ function init(event) {
   createCarrot();
   createBonusParticles();
   createObstacle();
+  createWolfObstacle();
   initUI();
 
   gameStatus = "waiting";
@@ -405,6 +407,12 @@ function resetGame() {
   
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
+  // wolfObstacle starts hidden; tickWolfObstacle shows it when the first wave triggers
+  if (typeof wolfObstacle !== 'undefined') {
+    wolfObstacle.mesh.visible = false;
+    wolfObstacle.status = 'ready';
+    wolfObstacle.angle = -floorRotation - Math.PI; // start opposite side
+  }
   gameStatus = "play";
   hero.status = "running";
   hero.nod();

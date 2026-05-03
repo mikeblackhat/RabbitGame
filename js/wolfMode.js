@@ -126,6 +126,7 @@ function resetLives() {
   wolfObstTimer   = 6;
   wolfObstActive  = false;
   wolfObstLeft    = 0;
+  wolfObstTraveling = false;
   wolfIsJumping   = false;
   wolfJumpOff.v   = 0;
 }
@@ -167,15 +168,22 @@ function wolfBiteAttempt() {
 
 function onOpponentConsume() { getMalus(); monsterPosTarget -= 0.07; }
 
-// ─── OBSTÁCULO DEL LOBO (ESPACIO / SALTAR para saltar) ───────────────────────
-// El monstruo salta visualmente en 3D (offset radial en updateMonsterPosition)
+// ─── OBSTÁCULO 3D DEL LOBO ──────────────────────────────────────────────────
+// El wolfObstacle viaja en el track circular igual que el erizo del conejo.
+// El lobo (monstruo) está en ángulo ≈ PI*monsterPos ≈ PI*0.65
+// El erizo sale del lado contrario (PI*0.65 + PI) y avanza hacia el lobo.
+
 var wolfJumpOff  = { v: 0 };
 var wolfIsJumping = false;
 
 var wolfObstActive  = false;
-var wolfObstTimer   = 6;      // segundos hasta el primer obstáculo
+var wolfObstTimer   = 6;      // segundos hasta la primera ola
 var wolfObstLeft    = 0;
 var WOLF_OBST_WIN   = 2.8;    // ventana de reacción (segundos)
+
+// Ángulo de viaje del obstáculo del lobo en la pista
+var wolfObstAngle    = 0;
+var wolfObstTraveling = false;
 
 function wolfJump() {
   if (gameStatus !== 'play') return;
@@ -190,23 +198,52 @@ function wolfJump() {
   });
 }
 
+function updateWolfObstaclePosition() {
+  if (typeof wolfObstacle === 'undefined') return;
+  if (!wolfObstTraveling || wolfObstActive === false) return;
+
+  // Avanza en el track igual que floorRotation mueve los demás objetos
+  // pero a velocidad constante independiente del floor
+  wolfObstAngle += delta * .03 * (speed * 0.6);
+
+  wolfObstacle.mesh.rotation.z = floorRotation + wolfObstAngle - Math.PI / 2;
+  wolfObstacle.mesh.position.y = -floorRadius + Math.sin(floorRotation + wolfObstAngle) * (floorRadius + 3);
+  wolfObstacle.mesh.position.x = Math.cos(floorRotation + wolfObstAngle) * (floorRadius + 3);
+}
+
 function tickWolfObstacle(dt) {
   if (wolfObstTimer > 0) { wolfObstTimer -= dt; return; }
 
   if (!wolfObstActive) {
-    wolfObstActive = true;
-    wolfObstLeft   = WOLF_OBST_WIN;
+    // ── Lanzar nueva ola ──
+    wolfObstActive  = true;
+    wolfObstLeft    = WOLF_OBST_WIN;
+    // El erizo aparece en el lado opuesto al lobo y empieza a rodar
+    wolfObstAngle   = -floorRotation + Math.PI; // punto opuesto al héroe
+    wolfObstTraveling = true;
+    if (typeof wolfObstacle !== 'undefined') {
+      wolfObstacle.mesh.visible = true;
+      wolfObstacle.status = 'ready';
+      wolfObstacle.mesh.rotation.set(0,0,0);
+      wolfObstacle.mesh.position.z = 0;
+    }
     showWolfObstacleUI();
+
   } else {
     wolfObstLeft -= dt;
     var pct = Math.max(0, wolfObstLeft / WOLF_OBST_WIN);
-    var bar = document.getElementById('wolfObstacleProgress');
-    if (bar) bar.style.width = (pct * 100) + '%';
+    // Actualizar el anillo SVG del timer (stroke-dashoffset)
+    var timerRing = document.getElementById('wolfTimerRing');
+    var circumference = 150.8;
+    if (timerRing) timerRing.setAttribute('stroke-dashoffset', (1 - pct) * circumference);
 
     if (wolfObstLeft <= 0) {
-      wolfObstActive = false;
-      wolfObstTimer  = Math.max(4, 9 - (typeof level !== 'undefined' ? level * 0.5 : 0));
+      // ── Tiempo agotado ──
+      wolfObstActive    = false;
+      wolfObstTraveling = false;
+      wolfObstTimer     = Math.max(4, 9 - (typeof level !== 'undefined' ? level * 0.5 : 0));
       hideWolfObstacleUI();
+      if (typeof wolfObstacle !== 'undefined') wolfObstacle.mesh.visible = false;
       if (!wolfIsJumping) {
         onWolfHit();
       } else {
@@ -234,6 +271,7 @@ function updateWolfMode(dt) {
   if (!isMultiplayer) {
     rabbitAI.update(dt);
     tickWolfObstacle(dt);
+    updateWolfObstaclePosition();
   }
 }
 

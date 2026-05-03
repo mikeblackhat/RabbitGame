@@ -102,5 +102,15 @@ function createBonusParticles() {
   bonusParticles = new BonusParticles();
   bonusParticles.mesh.visible = false;
   scene.add(bonusParticles.mesh);
-
 }
+
+function createWolfObstacle() {
+  wolfObstacle = new WolfHedgehog();
+  wolfObstacle.body.rotation.y = -Math.PI / 2;
+  wolfObstacle.mesh.scale.set(1.1, 1.1, 1.1);
+  wolfObstacle.mesh.position.y = floorRadius + 4;
+  wolfObstacle.mesh.visible = false;   // Hidden until wolf mode activates
+  wolfObstacle.nod();
+  scene.add(wolfObstacle.mesh);
+}
+

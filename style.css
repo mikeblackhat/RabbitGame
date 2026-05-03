@@ -691,80 +691,64 @@
 }
 
 /* ─── WOLF OBSTACLE LANE ─────────────────────────────────────────────────────── */
+/* ─── WOLF OBSTACLE LANE (Compact & Circular) ───────────────────────────────── */
 #wolfObstacleContainer {
   position: absolute;
-  bottom: 20px;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 80%;
-  max-width: 560px;
+  gap: 15px;
   z-index: 180;
+  pointer-events: none;
 }
 
-#wolfObstacleTrack {
+#wolfObstacleTimerWrap {
   position: relative;
-  width: 100%;
-  padding: 10px 16px;
-  background: rgba(10, 5, 20, 0.85);
-  border: 2px solid rgba(255, 100, 50, 0.6);
-  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background: rgba(10, 5, 20, 0.6);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(180, 75, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   animation: obstacleWarningPulse 0.5s ease-in-out infinite alternate;
 }
 
-@keyframes obstacleWarningPulse {
-  from { border-color: rgba(255,100,50,0.4); box-shadow: none; }
-  to   { border-color: rgba(255,100,50,0.9); box-shadow: 0 0 16px rgba(255,80,30,0.5); }
+#wolfObstacleRingSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #wolfObstacleLabel {
   font-family: "Voltaire", sans-serif;
-  font-size: clamp(16px, 3.5vw, 22px);
+  font-size: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: #ff6432;
-  text-align: center;
   font-weight: bold;
+  text-align: center;
+  z-index: 2;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
 }
 
-/* time-left progress bar inside the track */
-#wolfObstacleProgressBg {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 5px;
-  background: rgba(255,255,255,0.1);
-}
-#wolfObstacleProgress {
-  height: 100%;
-  background: linear-gradient(90deg, #b44bff, #2575fc);
-  width: 100%;
-  transition: width 0.1s linear;
+@keyframes obstacleWarningPulse {
+  from { border-color: rgba(180, 75, 255, 0.2); transform: scale(1); }
+  to   { border-color: rgba(255, 100, 50, 0.8); transform: scale(1.05); }
 }
 
-/* sliding rock */
-#wolfObstacleRock {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 36px;
-  line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(255,100,50,0.8));
-  animation: rockBob 0.4s ease-in-out infinite alternate;
-}
-
-@keyframes rockBob {
-  from { transform: translateY(-55%); }
-  to   { transform: translateY(-45%); }
-}
-
-/* SALTAR button */
+/* SALTAR button - re-enable pointer events */
 #wolfJumpBtn {
+  pointer-events: auto;
   font-family: "Voltaire", sans-serif;
   font-size: clamp(18px, 4vw, 26px);
   text-transform: uppercase;
