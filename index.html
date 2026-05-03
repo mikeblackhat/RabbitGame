@@ -24,15 +24,20 @@
     </div>
   </div>
 
-  <!-- Lives display (wolf mode) -->
-  <div id="livesContainer" style="display:none;">
-    <div class="livesRow">
-      <span class="livesLabel">🐰</span>
-      <span id="rabbitLivesDisplay">❤️❤️❤️</span>
+  <div id="topRightHUD">
+    <div id="livesContainer" style="display:none;">
+      <div class="livesRow">
+        <span class="livesLabel">🐰</span>
+        <span id="rabbitLivesDisplay">❤️❤️❤️</span>
+      </div>
+      <div class="livesRow">
+        <span class="livesLabel">🐺</span>
+        <span id="wolfLivesDisplay">❤️❤️❤️</span>
+      </div>
     </div>
-    <div class="livesRow">
-      <span class="livesLabel">🐺</span>
-      <span id="wolfLivesDisplay">❤️❤️❤️</span>
+    <div class="score-container" id="bestScoreContainer" style="display: none;">
+      <div class="label" id="bestScoreLabel">Récord</div>
+      <div id="bestDistValue">000</div>
     </div>
   </div>
 
@@ -57,10 +62,6 @@
     <div class="score-container">
       <div class="label">Distancia</div>
       <div id="distValue">000</div>
-    </div>
-    <div class="score-container" id="bestScoreContainer" style="display: none;">
-      <div class="label" id="bestScoreLabel">Récord</div>
-      <div id="bestDistValue">000</div>
     </div>
   </div>
 

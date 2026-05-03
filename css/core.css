@@ -1,4 +1,16 @@
 @import url("https://fonts.googleapis.com/css?family=Voltaire");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap");
+
+:root {
+  --primary: #dc5f45;
+  --secondary: #5f9042;
+  --accent: #2575fc;
+  --bg-dark: #0a0a0f;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-main: "Voltaire", sans-serif;
+  --font-ui: "Inter", sans-serif;
+}
 
 html, body {
   margin: 0;
