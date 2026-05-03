@@ -180,7 +180,9 @@ function wolfJump() {
 
 function updateWolfMode(dt) {
   if (!isMultiplayer) {
-    rabbitAI.update(dt);
+    if (myRole !== 'rabbit') {
+      rabbitAI.update(dt);
+    }
     tickWolfItems(dt);
   }
 }
