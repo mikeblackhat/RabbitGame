@@ -249,6 +249,35 @@ function getWolfBonus() {
   _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
 }
 
+function getWolfMalus() {
+  obstacle.status = "flying";
+  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+  
+  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
+  TweenMax.to(obstacle.mesh.rotation, 4, {
+    x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
+    onComplete: resetObstacle
+  });
+
+  if (gameMode === "endless") {
+    monsterPosTarget += .04; // Wolf moves BACKWARD
+  } else {
+    timeRemaining -= 3;
+    updateTimerUI();
+  }
+  onWolfHit();
+  playMalusSound();
+}
+
+function resetObstacle() {
+  obstacle.status = "ready";
+  obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+  obstacle.angle = -floorRotation - Math.random() * .4;
+  obstacle.angle = obstacle.angle % (Math.PI * 2);
+  obstacle.mesh.rotation.set(0, 0, 0);
+  obstacle.mesh.position.z = 0;
+}
+
 
 function getMalus() {
   obstacle.status = "flying";
