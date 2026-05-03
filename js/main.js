@@ -12,6 +12,7 @@ var floorRadius = 200;
 var speed = 0; // Starts at 0 to prevent rotation before start
 var distance = 0;
 var level = 1;
+var heart;
 var initSpeed = 10;
 var maxSpeed = 48;
 var monsterPos = .65;
@@ -163,11 +164,18 @@ function updateBonePosition() {
   bone.mesh.position.x = Math.cos(floorRotation + bone.angle) * (floorRadius + 50);
 }
 
+function updateHeartPosition() {
+  if (!heart || !heart.mesh.visible) return;
+  heart.mesh.rotation.y += delta * 6;
+  heart.mesh.rotation.z = Math.PI / 2 - (floorRotation + heart.angle);
+  heart.mesh.position.y = -floorRadius + Math.sin(floorRotation + heart.angle) * (floorRadius + 50);
+  heart.mesh.position.x = Math.cos(floorRotation + heart.angle) * (floorRadius + 50);
+}
+
 function updateObstaclePosition() {
   if (obstacle.status == "flying") return;
 
-  // TODO fix this,
-  if (floorRotation + obstacle.angle > 2.5) {
+  if (floorRotation + obstacle.angle > 3.0) {
     obstacle.angle = -floorRotation + Math.random() * .3;
     obstacle.body.rotation.y = Math.random() * Math.PI * 2;
   }
@@ -175,7 +183,6 @@ function updateObstaclePosition() {
   obstacle.mesh.rotation.z = floorRotation + obstacle.angle - Math.PI / 2;
   obstacle.mesh.position.y = -floorRadius + Math.sin(floorRotation + obstacle.angle) * (floorRadius + 3);
   obstacle.mesh.position.x = Math.cos(floorRotation + obstacle.angle) * (floorRadius + 3);
-
 }
 
 function updateFloorRotation() {
@@ -225,6 +232,7 @@ function loop() {
     updateMonsterPosition();
     updateCarrotPosition();
     updateObstaclePosition();
+    updateHeartPosition();
 
     if (myRole === 'wolf') {
       updateWolfMode(delta);
@@ -257,6 +265,7 @@ function init(event) {
   createObstacle();
   createWolfObstacle();
   createBone();
+  createHeart();
   initUI();
 
   gameStatus = "waiting";
@@ -385,7 +394,7 @@ function resetGame() {
     monsterAcceleration = 0.004;
   } else {
     monsterPosTarget = 0.65; // Standard solo/endless gap
-    monsterAcceleration = 0.004;
+    monsterAcceleration = 0.005; // Slightly more aggressive wolf
   }
   monsterPos = monsterPosTarget; // Prevent initial snap/retreat
   speed = initSpeed;
@@ -397,6 +406,7 @@ function resetGame() {
 
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
+  if (heart) heart.mesh.visible = false;
   if (typeof bone !== 'undefined') bone.mesh.visible = false;
 
   gameStatus = "play";
@@ -451,6 +461,12 @@ function resetGame() {
 // → all moved to js/wolfMode.js
 
 
+
+function createHeart() {
+  heart = new LifeHeart();
+  heart.mesh.visible = false;
+  scene.add(heart.mesh);
+}
 
 function initUI() {
   fieldDistance = document.getElementById("distValue");

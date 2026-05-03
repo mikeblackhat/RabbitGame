@@ -39,45 +39,58 @@
   font-weight: bold;
 }
 
-/* RACE PROGRESS BAR */
-#raceContainer {
-  position: absolute;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 250px;
-  height: 20px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(5px);
-  z-index: 10;
-}
-
-.race-marker {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
-  transition: left 0.1s linear;
-}
-
 .wolf-popup {
   position: fixed;
-  padding: 12px 24px;
-  border-radius: 15px;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(220, 95, 69, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 12px 30px;
+  border-radius: 50px;
   color: white;
   font-family: "Voltaire", sans-serif;
   font-weight: bold;
   pointer-events: none;
   z-index: 10005;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
 }
+
+/* RACE PROGRESS BAR OVERHAUL */
+#raceContainer {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
 #raceLine {
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+/* The subtle inner track */
+#raceLine::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-50%);
 }
 
 .marker {
@@ -85,12 +98,17 @@
   top: 50%;
   transform: translate(-50%, -50%);
   font-family: "Voltaire", sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   color: white;
   white-space: nowrap;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  transition: left 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 2;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
 }
+
+#p1Marker { color: #5f9042; text-shadow: 0 0 10px rgba(95, 144, 66, 0.5); }
+#p2Marker { color: #dc5f45; text-shadow: 0 0 10px rgba(220, 95, 69, 0.5); }
 
 /* LIVES CONTAINER */
 #livesContainer {

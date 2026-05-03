@@ -330,6 +330,35 @@ WolfHedgehog = function () {
   });
 }
 
+LifeHeart = function () {
+  this.angle = 0;
+  this.mesh = new THREE.Group();
+
+  var heartShape = new THREE.Shape();
+  heartShape.moveTo( 0, 0 );
+  heartShape.bezierCurveTo( 0, -3, -5, -3, -5, 0 );
+  heartShape.bezierCurveTo( -5, 3, 0, 5, 0, 10 );
+  heartShape.bezierCurveTo( 0, 5, 5, 3, 5, 0 );
+  heartShape.bezierCurveTo( 5, -3, 0, -3, 0, 0 );
+
+  var extrudeSettings = { amount: 2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+  var geometry = new THREE.ExtrudeGeometry( heartShape, extrudeSettings );
+  
+  // Use pinkMat or similar red-ish material
+  this.body = new THREE.Mesh(geometry, pinkMat); 
+  this.body.rotation.z = Math.PI;
+  this.body.scale.set(0.6, 0.6, 0.6);
+
+  this.mesh.add(this.body);
+
+  this.mesh.traverse(function (object) {
+    if (object instanceof THREE.Mesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+    }
+  });
+}
+
 WolfHedgehog.prototype.nod = function () {
   var _this = this;
   var speed = .1 + Math.random() * .5;

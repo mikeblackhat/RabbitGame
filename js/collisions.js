@@ -12,6 +12,11 @@ function checkCollision() {
     getBonus();
   }
 
+  var dh_rabbit = hero.mesh.position.clone().sub(heart.mesh.position.clone());
+  if (dh_rabbit.length() < collisionBonus && heart.mesh.visible) {
+    getHeartBonus();
+  }
+
   if (dm_rabbit.length() < collisionObstacle && obstacle.status != "flying") {
     getMalus();
   }
@@ -108,6 +113,13 @@ function getWolfMalus() {
   }
   onWolfHit();
   playMalusSound();
+}
+
+function getHeartBonus() {
+  heart.mesh.visible = false;
+  healRabbit();
+  playBonusSound();
+  _wolfPopup('heartPopup', '❤️ +1 VIDA', '#e91e63');
 }
 
 function resetObstacle() {

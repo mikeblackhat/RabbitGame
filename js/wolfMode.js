@@ -13,9 +13,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// ─── RABBIT AI ───────────────────────────────────────────────────────────────
 var rabbitAI = {
-  reactionDist : 0.55,   // radio de detección del erizo
+  reactionDist : 0.55,
   jumpCooldown : 0,
   evasionBoost : 0,
 
@@ -23,38 +22,48 @@ var rabbitAI = {
     if (gameStatus !== 'play') return;
     this.jumpCooldown -= dt;
 
-    // ── Esquivar erizo ────────────────────────────────────────────────────────
-    // El héroe está en la parte superior del círculo ≈ ángulo PI/2
+    // ── Dynamic reaction based on speed ──────────────────────────────────────
+    var currentSpeedFactor = (speed / initSpeed);
+    var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.2);
+
+    // ── Detected obstacles ────────────────────────────────────────────────────
     var heroAngle  = Math.PI / 2;
     var obstAngle  = (floorRotation + obstacle.angle) % (Math.PI * 2);
-    var diff       = Math.abs(heroAngle - obstAngle);
-    if (diff > Math.PI) diff = Math.PI * 2 - diff;
-
-    if (obstacle.status !== 'flying' && diff < this.reactionDist && this.jumpCooldown <= 0) {
-      if (hero.status !== 'jumping') {
-        hero.jump();
-        this.jumpCooldown = 0.6 + Math.random() * 0.4;
-      }
-    }
-
-    // ── Saltar por zanahoria ──────────────────────────────────────────────────
-    // Las zanahorias se recogen saltando cerca del ángulo PI/2
     var carrotAngle = (floorRotation + carrot.angle) % (Math.PI * 2);
-    var carrotDiff  = Math.abs(carrotAngle - Math.PI / 2);
+
+    var obstDiff   = Math.abs(heroAngle - obstAngle);
+    if (obstDiff > Math.PI) obstDiff = Math.PI * 2 - obstDiff;
+
+    var carrotDiff = Math.abs(heroAngle - carrotAngle);
     if (carrotDiff > Math.PI) carrotDiff = Math.PI * 2 - carrotDiff;
 
-    if (carrotDiff < 0.40 && this.jumpCooldown <= 0) {
+    // ── 1. Priority: Avoid Hedgehogs ──────────────────────────────────────────
+    if (obstacle.status !== 'flying' && obstDiff < adjustedReactionDist && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        this.jumpCooldown = 1.0;
+        this.jumpCooldown = 0.5; // Quick recovery for obstacle dodging
+      }
+      return; // Skip other jump checks if dodging
+    }
+
+    // ── 2. Secondary: Get Carrots (Only if safe) ──────────────────────────────
+    // Check if there's a hedgehog coming right after the carrot
+    var landingZoneObstAngle = (floorRotation + obstacle.angle + 0.3) % (Math.PI * 2); 
+    var landingObstDiff = Math.abs(heroAngle - landingZoneObstAngle);
+    if (landingObstDiff > Math.PI) landingObstDiff = Math.PI * 2 - landingObstDiff;
+
+    if (carrotDiff < 0.35 && this.jumpCooldown <= 0 && landingObstDiff > 0.5) {
+      if (hero.status !== 'jumping') {
+        hero.jump();
+        this.jumpCooldown = 0.8;
       }
     }
 
-    // ── Boost de evasión cuando el lobo está muy cerca ────────────────────────
+    // ── 3. Strategic: Escape Boost ────────────────────────────────────────────
     if (monsterPos < 0.62) {
-      this.evasionBoost += dt * 0.0008;
+      this.evasionBoost += dt * 0.001; // Faster evasion buildup
       monsterPosTarget  += this.evasionBoost;
-      this.evasionBoost  = Math.min(this.evasionBoost, 0.002);
+      this.evasionBoost  = Math.min(this.evasionBoost, 0.003);
     } else {
       this.evasionBoost = 0;
     }
@@ -126,21 +135,44 @@ function resetLives() {
   if (lc) lc.style.display = 'flex';
   hideWolfObstacleUI();
   boneTimer       = 0;
+  heartSpawnTimer = 3;
   wolfIsJumping   = false;
   wolfJumpOff.v   = 0;
 }
 
-// ─── MORDIDA DEL LOBO (CLIC = morder erizo del track) ────────────────────────
-// Bones logic
+// ─── ITEMS LOGIC (Bones & Hearts) ──────────────────────────────────────────
 var boneTimer = 0;
-function tickWolfBones(dt) {
-  if (bone.mesh.visible) return;
-  boneTimer -= dt;
-  if (boneTimer <= 0) {
-    bone.mesh.visible = true;
-    bone.angle = -floorRotation + Math.PI * 0.8;
-    boneTimer = 2 + Math.random() * 3;
+var heartSpawnTimer = 3;
+
+function tickWolfItems(dt) {
+  // Bones (Always spawn for wolf)
+  if (!bone.mesh.visible) {
+    boneTimer -= dt;
+    if (boneTimer <= 0) {
+      bone.mesh.visible = true;
+      bone.angle = -floorRotation + Math.PI * 0.8;
+      boneTimer = 2 + Math.random() * 3;
+    }
   }
+
+  // Hearts (Only if rabbit is at 1 life)
+  if (heart && !heart.mesh.visible) {
+    if (rabbitHits >= MAX_HITS - 1) {
+      heartSpawnTimer -= dt;
+      if (heartSpawnTimer <= 0) {
+        heart.mesh.visible = true;
+        heart.angle = -floorRotation + Math.PI * 0.8;
+        heartSpawnTimer = 10 + Math.random() * 5;
+      }
+    } else {
+      heartSpawnTimer = 3;
+    }
+  }
+}
+
+function healRabbit() {
+  if (rabbitHits > 0) rabbitHits--;
+  updateLivesDisplay();
 }
 
 function onOpponentConsume() { getMalus(); monsterPosTarget -= 0.07; }
@@ -170,7 +202,7 @@ function hideWolfObstacleUI() {
 function updateWolfMode(dt) {
   if (!isMultiplayer) {
     rabbitAI.update(dt);
-    tickWolfBones(dt);
+    tickWolfItems(dt);
   }
 }
 
