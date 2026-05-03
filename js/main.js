@@ -65,7 +65,7 @@ var bestName = "";
 function gameOver() {
   var d = Math.floor(distance / 2);
   var winner = 'wolf'; // Default
-  
+
   var txt = document.getElementById('gameoverText');
   if (txt) {
     if (txt.innerHTML.includes('CONEJO GANADOR') || txt.innerHTML.includes('ESCPA')) {
@@ -185,28 +185,28 @@ function updateFloorRotation() {
 }
 
 function checkCollision() {
-  if (myRole === 'rabbit') {
-    var db = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
-    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+  // Rabbit collisions (Always check, whether player is rabbit or AI)
+  var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
+  var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    if (db.length() < collisionBonus) {
-      getBonus();
-    }
+  if (db_rabbit.length() < collisionBonus) {
+    getBonus();
+  }
 
-    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
-      getMalus();
-    }
-  } else if (myRole === 'wolf') {
-    // Wolf collision: Bone = Bonus, Obstacle = Malus
-    var db = monster.mesh.position.clone().sub(bone.mesh.position.clone());
-    var dm = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
+  if (dm_rabbit.length() < collisionObstacle && obstacle.status != "flying") {
+    getMalus();
+  }
 
-    if (db.length() < collisionBonus && bone.mesh.visible) {
+  // Wolf collisions (Only if player is wolf)
+  if (myRole === 'wolf') {
+    var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
+    var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
+
+    if (db_wolf.length() < collisionBonus && (typeof bone !== 'undefined' && bone.mesh.visible)) {
       getWolfBonus();
     }
 
-    // Standard hedgehog collision for wolf
-    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
+    if (dm_wolf.length() < collisionObstacle && obstacle.status != "flying") {
       var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
       if (jumpBoost < 5) { // Not high enough in jump
         getWolfMalus();
@@ -220,7 +220,7 @@ function getBonus() {
   bonusParticles.mesh.visible = true;
   bonusParticles.explose();
   carrot.angle += Math.PI / 2;
-  
+
   // UI Feedback: Flash distance container
   TweenMax.fromTo(fieldDistanceContainer, 0.3, { scale: 1 }, { scale: 1.2, yoyo: true, repeat: 1 });
 
@@ -518,18 +518,16 @@ function resetGame() {
   hero.mesh.position.x = 0;
 
   if (gameMode === "timeAttack") {
-    monsterPos = .56;
-    monsterPosTarget = 0.75; // Balanced distance
-    monsterAcceleration = 0.002; // Noticeable wolf speed
+    monsterPosTarget = 0.75; // Balanced lead for rabbit
+    monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
-    monsterPos = .56;
-    monsterPosTarget = 0.62; // Wolf starts much closer to the action
+    monsterPosTarget = 0.62; // Intense chase (Wolf starts close)
     monsterAcceleration = 0.004;
   } else {
-    monsterPos = .56;
-    monsterPosTarget = .65;
+    monsterPosTarget = 0.65; // Standard solo/endless gap
     monsterAcceleration = 0.004;
   }
+  monsterPos = monsterPosTarget; // Prevent initial snap/retreat
   speed = initSpeed;
   level = 0;
   distance = 0;
@@ -557,7 +555,7 @@ function resetGame() {
 
   startBGM();
   cinematicEntry();
-  
+
   if (gameMode === "timeAttack") {
     timeRemaining = 45;
     document.getElementById('timerContainer').style.display = 'flex';
@@ -603,7 +601,7 @@ function startTimer() {
         var txt = document.getElementById('gameoverText');
         if (txt) {
           if (gameMode === "timeAttack") {
-            txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
+            txt.innerHTML = '¡Perdiste! EL CONEJO ESCAPÓ';
             txt.style.color = "#5f9042";
           } else {
             txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
