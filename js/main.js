@@ -12,7 +12,7 @@ var floorRadius = 200;
 var speed = 0; // Starts at 0 to prevent rotation before start
 var distance = 0;
 var level = 1;
-var initSpeed = 5;
+var initSpeed = 10;
 var maxSpeed = 48;
 var monsterPos = .65;
 var monsterPosTarget = .65;
@@ -50,7 +50,7 @@ function gameOver() {
   fieldGameOver.className = "show";
   var overlay = document.getElementById("gameOverOverlay");
   if (overlay) overlay.className = "show";
-  
+
   var d = Math.floor(distance / 2);
 
   if (d > bestScore) {
@@ -71,7 +71,7 @@ function gameOver() {
   TweenMax.to(this, 1, { speed: 0 });
 
   TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-  
+
   // Animate the distance score to center above game over text
   TweenMax.to(fieldDistanceContainer, 1, { top: "20%", scale: 1.2, xPercent: -50, ease: Back.easeOut });
 
@@ -96,7 +96,7 @@ function replay() {
   if (txt) txt.innerHTML = "Fin del juego";
   var overlay = document.getElementById("gameOverOverlay");
   if (overlay) overlay.className = "";
-  
+
   // Return the distance score to its original position
   TweenMax.to(fieldDistanceContainer, 1, { top: "5%", scale: 1, xPercent: -50, ease: Power4.easeInOut });
 
@@ -144,8 +144,8 @@ function replay() {
 function updateCarrotPosition() {
   carrot.mesh.rotation.y += delta * 6;
   carrot.mesh.rotation.z = Math.PI / 2 - (floorRotation + carrot.angle);
-  carrot.mesh.position.y = -floorRadius + Math.sin(floorRotation + carrot.angle) * (floorRadius + 40);
-  carrot.mesh.position.x = Math.cos(floorRotation + carrot.angle) * (floorRadius + 40);
+  carrot.mesh.position.y = -floorRadius + Math.sin(floorRotation + carrot.angle) * (floorRadius + 50);
+  carrot.mesh.position.x = Math.cos(floorRotation + carrot.angle) * (floorRadius + 50);
 
 }
 
@@ -153,8 +153,8 @@ function updateBonePosition() {
   if (typeof bone === 'undefined') return;
   bone.mesh.rotation.y += delta * 6;
   bone.mesh.rotation.z = Math.PI / 2 - (floorRotation + bone.angle);
-  bone.mesh.position.y = -floorRadius + Math.sin(floorRotation + bone.angle) * (floorRadius + 40);
-  bone.mesh.position.x = Math.cos(floorRotation + bone.angle) * (floorRadius + 40);
+  bone.mesh.position.y = -floorRadius + Math.sin(floorRotation + bone.angle) * (floorRadius + 50);
+  bone.mesh.position.x = Math.cos(floorRotation + bone.angle) * (floorRadius + 50);
 }
 
 function updateObstaclePosition() {
@@ -180,38 +180,27 @@ function updateFloorRotation() {
 
 function checkCollision() {
   if (myRole === 'rabbit') {
-    // 2D distance for robust collision
-    var dbx = hero.mesh.position.x - carrot.mesh.position.x;
-    var dby = hero.mesh.position.y - carrot.mesh.position.y;
-    var db = Math.sqrt(dbx*dbx + dby*dby);
+    var db = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
+    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    var dmx = hero.mesh.position.x - obstacle.mesh.position.x;
-    var dmy = hero.mesh.position.y - obstacle.mesh.position.y;
-    var dm = Math.sqrt(dmx*dmx + dmy*dmy);
-
-    if (db < collisionBonus) {
+    if (db.length() < collisionBonus) {
       getBonus();
     }
 
-    if (dm < collisionObstacle && obstacle.status != "flying") {
+    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
       getMalus();
     }
   } else if (myRole === 'wolf') {
     // Wolf collision: Bone = Bonus, Obstacle = Malus
-    var dbx = monster.mesh.position.x - bone.mesh.position.x;
-    var dby = monster.mesh.position.y - bone.mesh.position.y;
-    var db = Math.sqrt(dbx*dbx + dby*dby);
+    var db = monster.mesh.position.clone().sub(bone.mesh.position.clone());
+    var dm = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    var dmx = monster.mesh.position.x - obstacle.mesh.position.x;
-    var dmy = monster.mesh.position.y - obstacle.mesh.position.y;
-    var dm = Math.sqrt(dmx*dmx + dmy*dmy);
-
-    if (db < collisionBonus && bone.mesh.visible) {
+    if (db.length() < collisionBonus && bone.mesh.visible) {
       getWolfBonus();
     }
 
     // Standard hedgehog collision for wolf
-    if (dm < collisionObstacle && obstacle.status != "flying") {
+    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
       var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
       if (jumpBoost < 5) { // Not high enough in jump
         getWolfMalus();
@@ -222,7 +211,7 @@ function checkCollision() {
 
 function getWolfBonus() {
   bone.mesh.visible = false;
-  monsterPosTarget += .025; 
+  monsterPosTarget += .025;
   playBonusSound();
   _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
 }
@@ -277,13 +266,13 @@ function getMalus() {
 function updateDistance() {
   // Continuously accelerate the game
   if (speed < maxSpeed) {
-    speed += delta * 0.8; 
+    speed += delta * 0.8;
   }
-  
+
   distance += delta * speed;
   var d = distance / 2;
   fieldDistance.innerHTML = Math.floor(d);
-  
+
   // Update visual environment every 1000 meters
   if (Math.floor(d) >= level * 1000) {
     updateLevel();
@@ -295,9 +284,9 @@ function updateDistance() {
   } else {
     // CPU Progress in Solo Mode
     // CPU speed could be slightly varied or fixed
-    opponentDistance += delta * (initSpeed + level * 2); 
+    opponentDistance += delta * (initSpeed + level * 2);
   }
-  
+
   updateRaceLine();
 }
 
@@ -342,9 +331,9 @@ function loop() {
     updateObstaclePosition();
 
     if (myRole === 'wolf') {
-      updateWolfMode(delta);   
+      updateWolfMode(delta);
       updateBonePosition();
-      checkCollision();        
+      checkCollision();
     } else if (myRole === 'rabbit') {
       checkCollision();
     }
@@ -387,7 +376,7 @@ function init(event) {
       // Show role selection for Solo mode too
       document.getElementById('roleSelection').style.display = 'flex';
       isMultiplayer = false;
-      opponentRole = "cpu"; 
+      opponentRole = "cpu";
       setupRoleSelection();
     }, 500);
   });
@@ -416,7 +405,7 @@ function init(event) {
 
   var saveBtn = document.getElementById("saveScoreButton");
   if (saveBtn) {
-    saveBtn.addEventListener("click", function(e) {
+    saveBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       var nameInput = document.getElementById("playerNameInput");
@@ -425,7 +414,7 @@ function init(event) {
       bestName = name;
       localStorage.setItem("rabbitBestScore", bestScore);
       localStorage.setItem("rabbitBestName", bestName);
-      
+
       var fieldBestDistance = document.getElementById("bestDistValue");
       var bestScoreContainer = document.getElementById("bestScoreContainer");
       var bestScoreLabel = document.getElementById("bestScoreLabel");
@@ -436,14 +425,14 @@ function init(event) {
       document.getElementById("newHighScoreScreen").style.display = "none";
       gameStatus = "readyToReplay";
     });
-    
+
     var nameInput = document.getElementById("playerNameInput");
-    nameInput.addEventListener("keydown", function(e) {
+    nameInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") saveBtn.click();
     });
   }
 
-  document.getElementById("restartButton").addEventListener("click", function(e) {
+  document.getElementById("restartButton").addEventListener("click", function (e) {
     e.stopPropagation();
     replay();
   });
@@ -464,18 +453,18 @@ function resetGame() {
   speed = initSpeed;
   level = 0;
   distance = 0;
-  rabbitAI.reset();          
-  resetLives();              
+  rabbitAI.reset();
+  resetLives();
   if (!isMultiplayer) opponentDistance = 0;
-  
+
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
   if (typeof bone !== 'undefined') bone.mesh.visible = false;
-  
+
   gameStatus = "play";
   hero.status = "running";
   hero.nod();
-  
+
   // Reset Day Theme
   var dayBg = "#dbe6e6";
   var dayLight = "#ffffff";
@@ -488,15 +477,15 @@ function resetGame() {
 
   startBGM();
   updateLevel();
-  
+
   if (myRole === 'wolf') {
     // Wolf jumps with click now
-    document.addEventListener('mousedown', function() { if(gameStatus === "play") wolfJump(); });
-    document.addEventListener('touchstart', function() { if(gameStatus === "play") wolfJump(); });
+    document.addEventListener('mousedown', function () { if (gameStatus === "play") wolfJump(); });
+    document.addEventListener('touchstart', function () { if (gameStatus === "play") wolfJump(); });
     // Remove old rabbit jump listeners if any
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('touchstart', handleMouseDown);
-    
+
     showWolfHint();
   } else {
     // Rabbit controls
@@ -516,7 +505,7 @@ function initUI() {
   fieldDistance = document.getElementById("distValue");
   fieldDistanceContainer = document.getElementById("dist");
   fieldGameOver = document.getElementById("gameoverInstructions");
-  
+
   // Initialize centering with GSAP to prevent double-translation bugs
   TweenMax.set(fieldDistanceContainer, { xPercent: -50 });
 
