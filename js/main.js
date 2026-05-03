@@ -301,6 +301,15 @@ function init(event) {
     }, 500);
   });
 
+  var backFromRoleBtn = document.getElementById("backFromRoleBtn");
+  if (backFromRoleBtn) {
+    backFromRoleBtn.addEventListener("click", function () {
+      document.getElementById('roleSelection').style.display = 'none';
+      startScreen.style.display = 'flex';
+      startScreen.style.opacity = 1;
+    });
+  }
+
   var audioBtn = document.getElementById("audioButton");
   audioBtn.addEventListener("click", function (e) {
     e.preventDefault();

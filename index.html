@@ -102,22 +102,38 @@
   </div>
 
   <div id="roleSelection" style="display: none;">
-    <h2>Selecciona tu Rol</h2>
-    <div class="roles-container">
-      <div id="selectRabbit" class="role-card">
-        <div class="role-icon">🐰</div>
-        <h3>Conejo</h3>
-        <p>Salta para esquivar obstáculos y escapar del lobo.</p>
-        <span class="status-msg">Esperando...</span>
+    <h2 id="selectionTitle">ELIGE TU BANDO</h2>
+    <div class="roles-wrapper">
+      <div id="selectRabbit" class="role-card rabbit-theme">
+        <div class="card-glow"></div>
+        <div class="role-content">
+          <div class="role-icon">🐰</div>
+          <h3>CONEJO</h3>
+          <p>La agilidad es tu mejor arma. Escapa del depredador saltando obstáculos.</p>
+          <div class="role-status">
+            <span class="pulse-dot"></span>
+            <span class="status-msg">LISTO</span>
+          </div>
+        </div>
       </div>
-      <div id="selectWolf" class="role-card">
-        <div class="role-icon">🐺</div>
-        <h3>Lobo</h3>
-        <p>El conejo huye solo. <strong>Salta sobre los erizos</strong> y recoge huesos para ganar tiempo o velocidad.</p>
-        <span class="status-msg">Esperando...</span>
+
+      <div class="vs-divider">VS</div>
+
+      <div id="selectWolf" class="role-card wolf-theme">
+        <div class="card-glow"></div>
+        <div class="role-content">
+          <div class="role-icon">🐺</div>
+          <h3>LOBO</h3>
+          <p>La fuerza y el hambre te guían. Atrapa al valiente conejo antes que escape.</p>
+          <div class="role-status">
+            <span class="pulse-dot"></span>
+            <span class="status-msg">LISTO</span>
+          </div>
+        </div>
       </div>
     </div>
-    <p id="roleWaitingMsg">Esperando que el oponente elija...</p>
+    <p id="roleWaitingMsg">Esperando confirmación...</p>
+    <button id="backFromRoleBtn" class="back-btn">VOLVER AL MENÚ</button>
   </div>
 
   <div id="audioToggle">
