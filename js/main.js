@@ -16,6 +16,8 @@ var initSpeed = 10;
 var maxSpeed = 48;
 var monsterPos = .65;
 var monsterPosTarget = .65;
+var heroPos = .5;
+var heroPosTarget = .5;
 var floorRotation = 0;
 var collisionObstacle = 10;
 var collisionBonus = 20;
@@ -30,11 +32,23 @@ var timeRemaining = 30;
 var timerInterval = null;
 
 
-function updateMonsterPosition() {
+function updatePositions() {
   monster.run();
-  monsterPosTarget -= delta * monsterAcceleration;
+  
+  // Natural approach logic
+  if (myRole === 'rabbit') {
+    monsterPosTarget -= delta * monsterAcceleration;
+  } else {
+    // In wolf mode, the rabbit AI might be moving away
+    // For now, keep the standard acceleration logic
+    monsterPosTarget -= delta * monsterAcceleration;
+  }
+  
   monsterPos += (monsterPosTarget - monsterPos) * delta;
-  if (monsterPos < .56) {
+  
+  // Catch logic
+  var dist = Math.abs(heroPos - monsterPos);
+  if (dist < .06) {
     if (typeof myRole !== 'undefined' && myRole === 'wolf') {
       var txt = document.getElementById('gameoverText');
       if (txt) txt.innerHTML = '¡LOBO GANA! 🐺';
@@ -45,12 +59,21 @@ function updateMonsterPosition() {
     gameOver();
   }
 
-  var angle = Math.PI * monsterPos;
-  // wolfJumpOff.v > 0 when the wolf player is mid-jump (wolfMode.js)
-  var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
-  monster.mesh.position.y = -floorRadius + Math.sin(angle) * (floorRadius + 12 + jumpBoost);
-  monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
-  monster.mesh.rotation.z = -Math.PI / 2 + angle;
+  // Update Monster
+  var mAngle = Math.PI * monsterPos;
+  var wolfJumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
+  monster.mesh.position.y = -floorRadius + Math.sin(mAngle) * (floorRadius + 12 + wolfJumpBoost);
+  monster.mesh.position.x = Math.cos(mAngle) * (floorRadius + 15 + wolfJumpBoost);
+  monster.mesh.rotation.z = -Math.PI / 2 + mAngle;
+
+  // Update Hero (Rabbit)
+  var hAngle = Math.PI * heroPos;
+  // Use hero.jumpHeight or similar if needed. Hero mesh position y is controlled by TweenMax in jump()
+  // But we need to keep it relative to the circle
+  var heroJumpBoost = hero.mesh.position.y; // Jump height from TweenMax
+  hero.mesh.position.y = -floorRadius + Math.sin(hAngle) * (floorRadius + heroJumpBoost);
+  hero.mesh.position.x = Math.cos(hAngle) * (floorRadius + heroJumpBoost);
+  hero.mesh.rotation.z = -Math.PI / 2 + hAngle;
 }
 
 var bestScore = 0;
@@ -191,7 +214,9 @@ function updateFloorRotation() {
 
 function checkCollision() {
   if (myRole === 'rabbit') {
+    // Rabbit (Hero) vs Carrot
     var db = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
+    // Rabbit (Hero) vs Obstacle
     var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
     if (db.length() < collisionBonus) {
@@ -202,15 +227,23 @@ function checkCollision() {
       getMalus();
     }
   } else if (myRole === 'wolf') {
-    // Wolf collision: Bone = Bonus, Obstacle = Malus
+    // Wolf (Monster) vs Bone
     var db = monster.mesh.position.clone().sub(bone.mesh.position.clone());
+    // Wolf (Monster) vs Obstacle
     var dm = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
+    // Rabbit (AI) vs Carrot - The wolf wants to see the rabbit eat carrots? 
+    // Or maybe the rabbit AI just hits carrots naturally. 
+    // We should check collision for the AI rabbit too.
+    var dc = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
 
     if (db.length() < collisionBonus && bone.mesh.visible) {
       getWolfBonus();
     }
+    
+    if (dc.length() < collisionBonus) {
+      getBonus(); // Rabbit AI gets the carrot
+    }
 
-    // Standard hedgehog collision for wolf
     if (dm.length() < collisionObstacle && obstacle.status != "flying") {
       var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
       if (jumpBoost < 5) { // Not high enough in jump
@@ -369,9 +402,9 @@ function loop() {
       hero.run();
     }
     updateDistance();
-    updateMonsterPosition();
-    updateCarrotPosition();
+    updatePositions();
     updateObstaclePosition();
+    updateCarrotPosition();
 
     if (myRole === 'wolf') {
       updateWolfMode(delta);
@@ -506,8 +539,18 @@ function resetGame() {
   hero.mesh.position.z = 0;
   hero.mesh.position.x = 0;
 
-  monsterPos = .56;
-  monsterPosTarget = .65;
+  if (myRole === 'wolf') {
+    monsterPos = .5;
+    monsterPosTarget = .5;
+    heroPos = .42;
+    heroPosTarget = .42;
+  } else {
+    monsterPos = .65;
+    monsterPosTarget = .65;
+    heroPos = .5;
+    heroPosTarget = .5;
+  }
+  
   speed = initSpeed;
   level = 0;
   distance = 0;
