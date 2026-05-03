@@ -26,7 +26,7 @@ var monsterAcceleration = 0.004;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 var gameMode = "endless"; // "endless" or "timeAttack"
-var timeRemaining = 30;
+var timeRemaining = 45;
 var timerInterval = null;
 var opponentDistance = 0;
 
@@ -292,8 +292,11 @@ function getMalus() {
   if (gameMode === "endless") {
     monsterPosTarget -= .04;
   } else {
-    timeRemaining -= 3;
-    updateTimerUI();
+    // Time Attack: Any hit is Game Over (Perfect Run mode)
+    var txt = document.getElementById('gameoverText');
+    if (txt) txt.innerHTML = '¡CHOCASTE! (MODO PERFECTO) 💥';
+    gameOver();
+    return;
   }
   
   TweenMax.from(this, .5, {
@@ -518,8 +521,8 @@ function resetGame() {
 
   if (gameMode === "timeAttack") {
     monsterPos = .56;
-    monsterPosTarget = .8; // More distance
-    monsterAcceleration = 0.0015; // Slower wolf
+    monsterPosTarget = .9; // Much more distance
+    monsterAcceleration = 0.0005; // Extremely slow wolf
   } else {
     monsterPos = .56;
     monsterPosTarget = .65;
@@ -553,7 +556,7 @@ function resetGame() {
   startBGM();
   
   if (gameMode === "timeAttack") {
-    timeRemaining = 30;
+    timeRemaining = 45;
     document.getElementById('timerContainer').style.display = 'flex';
     updateTimerUI();
     startTimer();
@@ -593,11 +596,18 @@ function startTimer() {
     if (gameStatus === "play") {
       timeRemaining--;
       updateTimerUI();
-      if (timeRemaining <= 0) {
-        var txt = document.getElementById('gameoverText');
-        if (txt) txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
-        gameOver();
+    if (timeRemaining <= 0) {
+      var txt = document.getElementById('gameoverText');
+      if (txt) {
+        if (gameMode === "timeAttack") {
+          txt.innerHTML = '¡LO LOGRASTE! 🏆 CONEJO GANADOR';
+          txt.style.color = "#5f9042";
+        } else {
+          txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
+        }
       }
+      gameOver();
+    }
     }
   }, 1000);
 }
