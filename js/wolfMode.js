@@ -22,9 +22,9 @@ var rabbitAI = {
     this.jumpCooldown -= dt;
 
     // ── Dodge hedgehog ──────────────────────────────────────────────────────
-    // The hero sits at a fixed world position; we track the obstacle's angle
-    // relative to the "top" of the circular floor (~PI/2 = collectible zone).
-    var heroPosAngle = Math.PI * 0.75;
+    // Hero sits at the TOP of the circular floor ≈ angle PI/2.
+    // We detect when the obstacle enters a reaction window around that point.
+    var heroPosAngle = Math.PI / 2;   // ~1.57 rad — the actual collision zone
     var obstAngle    = (floorRotation + obstacle.angle) % (Math.PI * 2);
     var angleDiff    = Math.abs(heroPosAngle - obstAngle);
     if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
@@ -32,31 +32,29 @@ var rabbitAI = {
     if (obstacle.status !== 'flying' && angleDiff < this.reactionDistance && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        // Slightly randomised cooldown so the AI feels human-like
-        this.jumpCooldown = 0.7 + Math.random() * 0.5;
+        this.jumpCooldown = 0.6 + Math.random() * 0.4; // slight human randomness
       }
     }
 
     // ── Jump for carrot ─────────────────────────────────────────────────────
-    // Carrots orbit at floorRadius+50. They are collectible when near the top
-    // of the circle (angle ≈ π/2 in world space). The hero must jump (y ≈ 45)
-    // to reach them there.
+    // Carrots orbit at floorRadius+50, collectible near angle PI/2 (top).
     var carrotWorldAngle = (floorRotation + carrot.angle) % (Math.PI * 2);
     var carrotApproach   = Math.abs(carrotWorldAngle - Math.PI / 2);
     if (carrotApproach > Math.PI) carrotApproach = Math.PI * 2 - carrotApproach;
 
-    if (carrotApproach < 0.38 && this.jumpCooldown <= 0) {
+    if (carrotApproach < 0.4 && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        this.jumpCooldown = 1.2;
+        this.jumpCooldown = 1.0;
       }
     }
 
-    // ── Evasion burst when wolf is very close ───────────────────────────────
-    if (monsterPos > 0.62) {
-      this.evasionBoost += dt * 0.001;
-      monsterPosTarget  += this.evasionBoost;
-      this.evasionBoost  = Math.min(this.evasionBoost, 0.003);
+    // ── Evasion burst when wolf is dangerously close ─────────────────────────
+    // monsterPos < 0.62 = wolf is close (game over at < 0.56)
+    if (monsterPos < 0.62) {
+      this.evasionBoost += dt * 0.0008;
+      monsterPosTarget  += this.evasionBoost;           // push wolf back a little
+      this.evasionBoost  = Math.min(this.evasionBoost, 0.002);
     } else {
       this.evasionBoost = 0;
     }
@@ -104,7 +102,7 @@ function wolfBiteAttempt() {
   }
 
   consumeObstacle();
-  wolfBiteCooldown = 1.2;                    // 1.2 s before next bite
+  wolfBiteCooldown = 0.8;                    // 0.8 s before next bite (snappier)
 }
 
 // ─── CONSUME OBSTACLE ────────────────────────────────────────────────────────
@@ -129,9 +127,10 @@ function consumeObstacle() {
     }
   });
 
-  // Wolf gains a speed burst — push the monster position forward
-  monsterPosTarget += 0.08;
-  if (monsterPosTarget > 0.74) monsterPosTarget = 0.74;   // cap: can't skip past rabbit
+  // Wolf gains a speed burst — monster moves CLOSER to rabbit (monsterPos decreases)
+  // monsterPosTarget DECREASING = wolf catching up (game over when < 0.56)
+  monsterPosTarget -= 0.07;
+  if (monsterPosTarget < 0.58) monsterPosTarget = 0.58;  // don't instant-catch on one bite
 
   showWolfEatFeedback();
   playBonusSound();
@@ -141,8 +140,8 @@ function consumeObstacle() {
 
 /** Called on the RABBIT side when the wolf (online) ate the hedgehog */
 function onOpponentConsume() {
-  getMalus();
-  monsterPosTarget += 0.08;
+  getMalus();               // obstacle flies away
+  monsterPosTarget -= 0.07; // wolf gets closer on rabbit's screen too
 }
 
 // ─── WOLF UI HELPERS ──────────────────────────────────────────────────────────
