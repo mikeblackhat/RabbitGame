@@ -59,30 +59,25 @@ function replay() {
 }
 
 function resetGame() {
-  scene.add(hero.mesh);
-  hero.mesh.rotation.y = Math.PI / 2;
-  hero.mesh.position.set(0, 0, 0);
+  // Reset hero holder (central focus)
+  heroHolder.position.set(0, 0, 0);
+  heroHolder.rotation.set(0, 0, 0);
 
-  if (gameState.gameMode === "timeAttack") {
-    gameState.heroPos = 0.5;
-    gameState.monsterPosTarget = 0.8;
-    gameState.monsterAcceleration = 0.002;
-  } else if (myRole === 'wolf') {
-    gameState.heroPos = 0.35; // Rabbit is ahead
-    gameState.monsterPosTarget = 0.5; // Wolf is protagonist (top)
-    gameState.monsterAcceleration = 0.003;
+  // Set proximity (distance between characters) based on selected role
+  if (myRole === 'wolf') {
+    // Wolf is central, rabbit ahead
+    gameState.proximity = 0.15; // initial gap
   } else {
-    gameState.heroPos = 0.5; // Rabbit is protagonist (top)
-    gameState.monsterPosTarget = 0.75; // Wolf is behind
-    gameState.monsterAcceleration = 0.0035;
+    // Rabbit is central, wolf behind
+    gameState.proximity = 0.15;
   }
-  
-  gameState.heroPosTarget = gameState.heroPos;
-  gameState.monsterPos = gameState.monsterPosTarget;
+  gameState.proximityTarget = gameState.proximity;
+
+  // Reset other state variables
   gameState.speed = gameConfig.initSpeed;
   gameState.level = 0;
   gameState.distance = 0;
-  
+
   rabbitAI.reset();
   resetLives();
   if (!isMultiplayer) gameState.opponentDistance = 0;
