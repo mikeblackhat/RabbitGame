@@ -7,7 +7,17 @@ var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane,
     globalLight, shadowLight, backLight,
     renderer, container, controls, clock;
 
-var heart; // Still global for easy access in elements creation
+// Game Objects
+var hero, monster, floor, floorShadow, floorGrass, carrot, obstacle, wolfObstacle, bone, bonusParticles, heart;
+
+// UI Elements (populated in ui.js)
+var fieldDistance, fieldDistanceContainer, fieldGameOver;
+
+// Multiplayer state (populated in multiplayer.js)
+var isMultiplayer = false, myRole = "rabbit", opponentRole = "";
+
+// Core variables used by prototypes for compatibility
+var speed = 0, delta = 0;
 
 function init(event) {
   initScreenAnd3D();
@@ -33,7 +43,9 @@ function init(event) {
 }
 
 function loop() {
-  gameState.delta = clock.getDelta();
+  delta = clock.getDelta();
+  gameState.delta = delta;
+  speed = gameState.speed;
   
   updateFloorRotation();
 
