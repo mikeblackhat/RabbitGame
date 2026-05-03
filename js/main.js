@@ -53,10 +53,16 @@ function updateMonsterPosition() {
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
 
-  // Dynamic Camera Leaning (UI/UX Skill)
-  var targetCameraX = -Math.cos(angle) * 10;
+  // Cinematic Side View (UI/UX Skill - Matching User Screenshot)
+  var targetCameraX = 50; // Move camera to the right
+  var targetCameraY = 60; // Move camera up
+  var targetCameraZ = cameraPosGame + 20; // Move camera back slightly
+  
   camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
-  camera.lookAt(new THREE.Vector3(0, 30, 0));
+  camera.position.y += (targetCameraY - camera.position.y) * delta * 2;
+  camera.position.z += (targetCameraZ - camera.position.z) * delta * 2;
+  
+  camera.lookAt(new THREE.Vector3(-20, 20, 0)); // Look towards the chase
 }
 
 var bestScore = 0;
@@ -379,15 +385,11 @@ function loop() {
       updateWolfMode(delta);
       updateBonePosition();
       checkCollision();
-      
-      // Center the wolf as the main character (UI/UX skill)
-      var targetRotation = (Math.PI / 2) - (Math.PI * monsterPos);
-      scene.rotation.z += (targetRotation - scene.rotation.z) * delta * 5;
     } else if (myRole === 'rabbit') {
       checkCollision();
-      // Keep rabbit centered
-      scene.rotation.z += (0 - scene.rotation.z) * delta * 5;
     }
+    // Keep world upright
+    scene.rotation.z += (0 - scene.rotation.z) * delta * 5;
   }
 
   render();
