@@ -3,24 +3,9 @@
  * Game Orchestrator - Manages the loop, state syncing, and entity updates.
  */
 
-// Core Three.js variables
-var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane,
-  globalLight, shadowLight, backLight,
-  renderer, container, controls, clock;
-
-// Game Objects
-var hero, heroHolder, monster, floor, floorShadow, floorGrass, carrot, obstacle, wolfObstacle, bone, bonusParticles, heart;
-
-// UI Elements (populated in ui.js)
-var fieldDistance, fieldDistanceContainer, fieldGameOver;
-
-// Multiplayer state (populated in multiplayer.js)
-var isMultiplayer = false, myRole = "rabbit", opponentRole = "";
-
-// Core variables used by prototypes for compatibility
-var speed = 0, delta = 0;
 
 function init(event) {
+  console.log("Init starting...");
   initScreenAnd3D();
   createLights();
   createFloor();
@@ -36,8 +21,15 @@ function init(event) {
 
   // Initialize UI (defined in js/ui.js)
   initUI();
+  console.log("UI initialized.");
+
+  if (typeof initMultiplayer === 'function') {
+    initMultiplayer();
+    console.log("Multiplayer initialized.");
+  }
 
   setupWolfJumpControls(); // defined in wolfMode.js
+  console.log("Starting loop.");
   loop();
 }
 

@@ -59,7 +59,12 @@ function replay() {
 }
 
 function resetGame() {
+  console.log("resetGame called. Mode:", gameState.gameMode, "Role:", myRole);
   // Reset hero holder (central focus)
+  if (!heroHolder) {
+    console.error("heroHolder is not defined!");
+    return;
+  }
   heroHolder.position.set(0, 0, 0);
   heroHolder.rotation.set(0, 0, 0);
 

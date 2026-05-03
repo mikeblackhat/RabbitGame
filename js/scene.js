@@ -10,7 +10,6 @@ var HEIGHT, WIDTH, windowHalfX, windowHalfY,
 
 //3D OBJECTS VARIABLES
 
-var hero;
 
 
 // Materials

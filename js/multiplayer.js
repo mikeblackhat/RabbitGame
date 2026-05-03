@@ -6,10 +6,7 @@ var peer;
 var conn;
 var isHost = false;
 var myPeerId = "";
-var isMultiplayer = false;
 var opponentConnected = false;
-var myRole = "rabbit"; 
-var opponentRole = "";
 var gameReady = false;
 
 function initMultiplayer() {

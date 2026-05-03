@@ -44,7 +44,6 @@ function createFloor() {
 
 }
 
-var heroHolder;
 function createHero() {
   hero = new Hero();
   hero.mesh.rotation.y = Math.PI / 2;
