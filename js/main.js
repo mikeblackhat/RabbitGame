@@ -4,8 +4,8 @@
 
 // Core Three.js variables
 var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane,
-    globalLight, shadowLight, backLight,
-    renderer, container, controls, clock;
+  globalLight, shadowLight, backLight,
+  renderer, container, controls, clock;
 
 // Game Objects
 var hero, monster, floor, floorShadow, floorGrass, carrot, obstacle, wolfObstacle, bone, bonusParticles, heart;
@@ -32,12 +32,12 @@ function init(event) {
   createWolfObstacle();
   createBone();
   createHeart();
-  
+
   // Initialize UI (defined in js/ui.js)
   initUI();
 
   gameState.gameStatus = "waiting";
-  
+
   setupWolfJumpControls(); // defined in wolfMode.js
   loop();
 }
@@ -46,20 +46,20 @@ function loop() {
   delta = clock.getDelta();
   gameState.delta = delta;
   speed = gameState.speed;
-  
+
   updateFloorRotation();
 
   if (gameState.gameStatus == "play") {
     if (hero.status == "running") {
       hero.run();
     }
-    
+
     // Mechanics defined in js/game.js
     updateDistance();
-    
+
     // Local updates
     updateMonsterPosition();
-    
+
     // Object updates (encapsulated in js/elements.js)
     carrot.update(gameState.delta, gameState.floorRotation);
     obstacle.update(gameState.delta, gameState.floorRotation);
@@ -82,14 +82,14 @@ function updateMonsterPosition() {
   monster.run();
   gameState.monsterPosTarget -= gameState.delta * gameState.monsterAcceleration;
   gameState.monsterPos += (gameState.monsterPosTarget - gameState.monsterPos) * gameState.delta;
-  
+
   if (gameState.monsterPos < .56) {
     handleMonsterCaught();
   }
 
   const angle = Math.PI * gameState.monsterPos;
   const jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
-  
+
   monster.mesh.position.y = -gameConfig.floorRadius + Math.sin(angle) * (gameConfig.floorRadius + 12 + jumpBoost);
   monster.mesh.position.x = Math.cos(angle) * (gameConfig.floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;

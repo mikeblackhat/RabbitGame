@@ -50,9 +50,10 @@ function getBonus() {
   if (gameState.gameMode === "timeAttack") {
     gameState.timeRemaining += 5;
     updateTimerUI();
-    _wolfPopup('wolfEatEl', '🥕 +5 SEG', '#5f9042');
+    _wolfPopup('bonusPopup', '🥕 +5 SEG', '#5f9042');
   } else {
     gameState.monsterPosTarget += .025;
+    _wolfPopup('bonusPopup', '🥕 ¡MÁS DISTANCIA!', '#5f9042');
   }
   playBonusSound();
 }
@@ -62,11 +63,12 @@ function getWolfBonus() {
   if (gameState.gameMode === "timeAttack") {
     gameState.timeRemaining += 5;
     updateTimerUI();
+    _wolfPopup('bonusPopup', '🦴 +5 SEG', '#2575fc');
   } else {
     gameState.monsterPosTarget -= .025; 
+    _wolfPopup('bonusPopup', '🦴 ¡MÁS VELOCIDAD!', '#2575fc');
   }
   playBonusSound();
-  _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
 }
 
 function getMalus() {
@@ -80,9 +82,11 @@ function getMalus() {
 
   if (gameState.gameMode === "endless") {
     gameState.monsterPosTarget -= .04;
+    _wolfPopup('malusPopup', '💥 ¡EL LOBO SE ACERCA!', '#dc5f45');
   } else {
     var txt = document.getElementById('gameoverText');
     if (txt) txt.innerHTML = '¡CHOCASTE! 💥';
+    _wolfPopup('malusPopup', '💥 ¡GOLPE!', '#dc5f45');
     gameOver();
     return;
   }
@@ -107,9 +111,11 @@ function getWolfMalus() {
 
   if (gameState.gameMode === "endless") {
     gameState.monsterPosTarget += .04;
+    _wolfPopup('malusPopup', '💥 ¡EL CONEJO ESCAPA!', '#dc5f45');
   } else {
     gameState.timeRemaining -= 3;
     updateTimerUI();
+    _wolfPopup('malusPopup', '💥 -3 SEG', '#dc5f45');
   }
   onWolfHit();
   playMalusSound();
@@ -119,7 +125,7 @@ function getHeartBonus() {
   heart.mesh.visible = false;
   healRabbit();
   playBonusSound();
-  _wolfPopup('heartPopup', '❤️ +1 VIDA', '#e91e63');
+  _wolfPopup('bonusPopup', '❤️ +1 VIDA', '#e91e63');
 }
 
 function resetObstacle() {

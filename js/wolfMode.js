@@ -208,7 +208,7 @@ function showWolfHint() {
   }, 5000);
 }
 
-function _wolfPopup(id, text) {
+function _wolfPopup(id, text, color) {
   var el = document.getElementById(id);
   if (!el) {
     el = document.createElement('div');
@@ -217,6 +217,8 @@ function _wolfPopup(id, text) {
     document.body.appendChild(el);
   }
   el.innerHTML = text;
+  if (color) el.style.background = color;
+  else el.style.background = ''; // reset to CSS default if none provided
   el.style.display = 'block';
   el.style.opacity = '1';
   TweenMax.killTweensOf(el);
