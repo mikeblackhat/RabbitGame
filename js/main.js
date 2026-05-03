@@ -53,16 +53,10 @@ function updateMonsterPosition() {
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
 
-  // Cinematic Side View (UI/UX Skill - Matching User Screenshot)
-  var targetCameraX = 50; // Move camera to the right
-  var targetCameraY = 60; // Move camera up
-  var targetCameraZ = cameraPosGame + 20; // Move camera back slightly
-  
+  // Dynamic Camera Leaning (UI/UX Skill)
+  var targetCameraX = -Math.cos(angle) * 10;
   camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
-  camera.position.y += (targetCameraY - camera.position.y) * delta * 2;
-  camera.position.z += (targetCameraZ - camera.position.z) * delta * 2;
-  
-  camera.lookAt(new THREE.Vector3(-20, 20, 0)); // Look towards the chase
+  camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
 
 var bestScore = 0;
@@ -388,8 +382,6 @@ function loop() {
     } else if (myRole === 'rabbit') {
       checkCollision();
     }
-    // Keep world upright
-    scene.rotation.z += (0 - scene.rotation.z) * delta * 5;
   }
 
   render();
