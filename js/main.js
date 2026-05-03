@@ -516,8 +516,15 @@ function resetGame() {
   hero.mesh.position.z = 0;
   hero.mesh.position.x = 0;
 
-  monsterPos = .56;
-  monsterPosTarget = .65;
+  if (gameMode === "timeAttack") {
+    monsterPos = .56;
+    monsterPosTarget = .8; // More distance
+    monsterAcceleration = 0.0015; // Slower wolf
+  } else {
+    monsterPos = .56;
+    monsterPosTarget = .65;
+    monsterAcceleration = 0.004;
+  }
   speed = initSpeed;
   level = 0;
   distance = 0;
