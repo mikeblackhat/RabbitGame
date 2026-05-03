@@ -35,7 +35,6 @@ function updateMonsterPosition() {
   monster.run();
   monsterPosTarget -= delta * monsterAcceleration;
   monsterPos += (monsterPosTarget - monsterPos) * delta;
-  
   if (monsterPos < .56) {
     if (typeof myRole !== 'undefined' && myRole === 'wolf') {
       var txt = document.getElementById('gameoverText');
@@ -47,38 +46,15 @@ function updateMonsterPosition() {
     gameOver();
   }
 
-  // Visual Repositioning for Wolf Mode (UI/UX Skill)
-  // We keep the logical monsterPos but shift the meshes so Wolf is centered
-  var visualMonsterPos = monsterPos;
-  var visualHeroAngle = 0.5;
-
-  if (myRole === 'wolf') {
-    var offset = monsterPos - 0.5; 
-    visualMonsterPos = 0.5;      // Wolf stays at the top/center
-    visualHeroAngle = 0.5 - offset; // Rabbit stays ahead
-  }
-
-  var angle = Math.PI * visualMonsterPos;
+  var angle = Math.PI * monsterPos;
   // wolfJumpOff.v > 0 when the wolf player is mid-jump (wolfMode.js)
   var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
   monster.mesh.position.y = -floorRadius + Math.sin(angle) * (floorRadius + 12 + jumpBoost);
   monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + angle;
 
-  // Update Hero Position for Wolf Mode
-  if (myRole === 'wolf') {
-    var hAngle = Math.PI * visualHeroAngle;
-    hero.mesh.position.y = -floorRadius + Math.sin(hAngle) * (floorRadius);
-    hero.mesh.position.x = Math.cos(hAngle) * (floorRadius);
-    hero.mesh.rotation.z = -Math.PI / 2 + hAngle;
-  } else {
-    hero.mesh.position.set(0, 0, 0);
-    hero.mesh.rotation.z = 0;
-  }
-
-  // Dynamic Camera Leaning
-  var camAngle = Math.PI * visualMonsterPos;
-  var targetCameraX = -Math.cos(camAngle) * 10;
+  // Dynamic Camera Leaning (UI/UX Skill)
+  var targetCameraX = -Math.cos(angle) * 10;
   camera.position.x += (targetCameraX - camera.position.x) * delta * 2;
   camera.lookAt(new THREE.Vector3(0, 30, 0));
 }
@@ -208,156 +184,7 @@ function updateFloorRotation() {
   floor.rotation.z = floorRotation;
 }
 
-function checkCollision() {
-  // Rabbit collisions (Always check, whether player is rabbit or AI)
-  var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
-  var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-  if (db_rabbit.length() < collisionBonus) {
-    getBonus();
-  }
-
-  if (dm_rabbit.length() < collisionObstacle && obstacle.status != "flying") {
-    getMalus();
-  }
-
-  // Wolf collisions (Only if player is wolf)
-  if (myRole === 'wolf') {
-    var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
-    var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
-
-    if (db_wolf.length() < collisionBonus && (typeof bone !== 'undefined' && bone.mesh.visible)) {
-      getWolfBonus();
-    }
-
-    if (dm_wolf.length() < collisionObstacle && obstacle.status != "flying") {
-      var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
-      if (jumpBoost < 5) { // Not high enough in jump
-        getWolfMalus();
-      }
-    }
-  }
-}
-
-function getBonus() {
-  bonusParticles.mesh.position.copy(carrot.mesh.position);
-  bonusParticles.mesh.visible = true;
-  bonusParticles.explose();
-  carrot.angle += Math.PI / 2;
-
-  // UI Feedback: Flash distance container
-  TweenMax.fromTo(fieldDistanceContainer, 0.3, { scale: 1 }, { scale: 1.2, yoyo: true, repeat: 1 });
-
-  if (gameMode === "timeAttack") {
-    timeRemaining += 5;
-    updateTimerUI();
-    _wolfPopup('wolfEatEl', '🥕 +5 SEG', '#5f9042');
-  } else {
-    monsterPosTarget += .025;
-  }
-  playBonusSound();
-}
-
-function getWolfBonus() {
-  bone.mesh.visible = false;
-
-  if (gameMode === "timeAttack") {
-    timeRemaining += 5;
-    updateTimerUI();
-  } else {
-    monsterPosTarget -= .025; // Wolf moves FORWARD
-  }
-
-  playBonusSound();
-  _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
-}
-
-function getWolfMalus() {
-  obstacle.status = "flying";
-  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-
-  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-  TweenMax.to(obstacle.mesh.rotation, 4, {
-    x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
-    onComplete: resetObstacle
-  });
-
-  if (gameMode === "endless") {
-    monsterPosTarget += .04; // Wolf moves BACKWARD
-  } else {
-    timeRemaining -= 3;
-    updateTimerUI();
-  }
-  onWolfHit();
-  playMalusSound();
-}
-
-function resetObstacle() {
-  obstacle.status = "ready";
-  obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-  obstacle.angle = -floorRotation - Math.random() * .4;
-  obstacle.angle = obstacle.angle % (Math.PI * 2);
-  obstacle.mesh.rotation.set(0, 0, 0);
-  obstacle.mesh.position.z = 0;
-}
-
-
-function getMalus() {
-  obstacle.status = "flying";
-  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-  TweenMax.to(obstacle.mesh.rotation, 4, {
-    x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
-    onComplete: resetObstacle
-  });
-
-  if (gameMode === "endless") {
-    monsterPosTarget -= .04;
-  } else {
-    // Time Attack: Any hit is Game Over (Perfect Run mode)
-    var txt = document.getElementById('gameoverText');
-    if (txt) txt.innerHTML = '¡CHOCASTE! 💥';
-    gameOver();
-    return;
-  }
-
-  TweenMax.from(this, .5, {
-    malusClearAlpha: .5, onUpdate: function () {
-      renderer.setClearColor(malusClearColor, malusClearAlpha);
-    }
-  });
-  playMalusSound();
-
-  // Count rabbit hedgehog hits (3 = Game Over)
-  if (!isMultiplayer) onRabbitHit();
-}
-
-function updateDistance() {
-  // Continuously accelerate the game
-  if (speed < maxSpeed) {
-    speed += delta * 0.8;
-  }
-
-  distance += delta * speed;
-  var d = distance / 2;
-  fieldDistance.innerHTML = Math.floor(d);
-
-  // Update visual environment every 1000 meters
-  if (Math.floor(d) >= level * 1000) {
-    updateLevel();
-  }
-
-  // MULTIPLAYER / CPU SYNC
-  if (isMultiplayer) {
-    broadcastDistance(d);
-  } else {
-    // CPU Progress in Solo Mode
-    // CPU speed could be slightly varied or fixed
-    opponentDistance += delta * (initSpeed + level * 2);
-  }
-
-  updateRaceLine();
-}
 
 function updateLevel() {
   level++;
@@ -545,7 +372,7 @@ function resetGame() {
     monsterPosTarget = 0.75; // Balanced lead for rabbit
     monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
-    monsterPosTarget = 0.65; // Logical starting distance
+    monsterPosTarget = 0.62; // Intense chase (Wolf starts close)
     monsterAcceleration = 0.004;
   } else {
     monsterPosTarget = 0.65; // Standard solo/endless gap
@@ -615,37 +442,6 @@ function resetGame() {
 // → all moved to js/wolfMode.js
 
 
-function startTimer() {
-  stopTimer();
-  timerInterval = setInterval(function () {
-    if (gameStatus === "play") {
-      timeRemaining--;
-      updateTimerUI();
-      if (timeRemaining <= 0) {
-        var txt = document.getElementById('gameoverText');
-        if (txt) {
-          if (gameMode === "timeAttack") {
-            txt.innerHTML = '¡Perdiste! EL CONEJO ESCAPÓ';
-            txt.style.color = "#5f9042";
-          } else {
-            txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
-          }
-        }
-        gameOver();
-      }
-    }
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-}
-
-function updateTimerUI() {
-  var m = Math.floor(timeRemaining / 60);
-  var s = timeRemaining % 60;
-  document.getElementById('timerValue').innerHTML = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-}
 
 function initUI() {
   fieldDistance = document.getElementById("distValue");
