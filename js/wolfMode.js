@@ -14,7 +14,7 @@
  */
 
 var rabbitAI = {
-  reactionDist : 0.55,
+  reactionDist : 0.75, // Reacts much earlier
   jumpCooldown : 0,
   evasionBoost : 0,
 
@@ -24,7 +24,7 @@ var rabbitAI = {
 
     // ── Dynamic reaction based on speed ──────────────────────────────────────
     var currentSpeedFactor = (speed / initSpeed);
-    var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.2);
+    var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.1);
 
     // ── Detected obstacles ────────────────────────────────────────────────────
     var heroAngle  = Math.PI / 2;
@@ -38,32 +38,33 @@ var rabbitAI = {
     if (carrotDiff > Math.PI) carrotDiff = Math.PI * 2 - carrotDiff;
 
     // ── 1. Priority: Avoid Hedgehogs ──────────────────────────────────────────
+    // AI now has near-perfect dodging with a very short cooldown
     if (obstacle.status !== 'flying' && obstDiff < adjustedReactionDist && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        this.jumpCooldown = 0.5; // Quick recovery for obstacle dodging
+        this.jumpCooldown = 0.3; // Very quick recovery
       }
-      return; // Skip other jump checks if dodging
+      return; 
     }
 
-    // ── 2. Secondary: Get Carrots (Only if safe) ──────────────────────────────
-    // Check if there's a hedgehog coming right after the carrot
+    // ── 2. Secondary: Get Carrots (Only if very safe) ─────────────────────────
     var landingZoneObstAngle = (floorRotation + obstacle.angle + 0.3) % (Math.PI * 2); 
     var landingObstDiff = Math.abs(heroAngle - landingZoneObstAngle);
     if (landingObstDiff > Math.PI) landingObstDiff = Math.PI * 2 - landingObstDiff;
 
-    if (carrotDiff < 0.35 && this.jumpCooldown <= 0 && landingObstDiff > 0.5) {
+    if (carrotDiff < 0.4 && this.jumpCooldown <= 0 && landingObstDiff > 0.6) {
       if (hero.status !== 'jumping') {
         hero.jump();
-        this.jumpCooldown = 0.8;
+        this.jumpCooldown = 0.5;
       }
     }
 
-    // ── 3. Strategic: Escape Boost ────────────────────────────────────────────
-    if (monsterPos < 0.62) {
-      this.evasionBoost += dt * 0.001; // Faster evasion buildup
+    // ── 3. Strategic: Escape Boost (Almost impossible to catch) ───────────────
+    // If the wolf is close (< 0.65), the rabbit AI generates massive distance
+    if (monsterPos < 0.65) {
+      this.evasionBoost += dt * 0.005; // Rapidly increases gap
       monsterPosTarget  += this.evasionBoost;
-      this.evasionBoost  = Math.min(this.evasionBoost, 0.003);
+      this.evasionBoost  = Math.min(this.evasionBoost, 0.015);
     } else {
       this.evasionBoost = 0;
     }

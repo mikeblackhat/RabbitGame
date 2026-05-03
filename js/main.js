@@ -13,8 +13,8 @@ var speed = 0; // Starts at 0 to prevent rotation before start
 var distance = 0;
 var level = 1;
 var heart;
-var initSpeed = 10;
-var maxSpeed = 42; // Lowered from 48 for better visibility
+var initSpeed = 6;
+var maxSpeed = 48; 
 var monsterPos = .65;
 var monsterPosTarget = .65;
 var floorRotation = 0;
@@ -395,14 +395,15 @@ function resetGame() {
   hero.mesh.position.x = 0;
 
   if (gameMode === "timeAttack") {
-    monsterPosTarget = 0.75; // Balanced lead for rabbit
+    monsterPosTarget = 0.8; // Balanced lead for rabbit
     monsterAcceleration = 0.002;
   } else if (myRole === 'wolf') {
-    monsterPosTarget = 0.62; // Intense chase (Wolf starts close)
-    monsterAcceleration = 0.004;
+    monsterPosTarget = 0.65; // Rabbit starts with a decent lead
+    monsterAcceleration = 0.003; // Rabbit AI is fast, wolf must work hard
   } else {
-    monsterPosTarget = 0.65; // Standard solo/endless gap
-    monsterAcceleration = 0.005; // Slightly more aggressive wolf
+    // Solo Rabbit Mode (Player is Rabbit)
+    monsterPosTarget = 0.75; // More distance for player
+    monsterAcceleration = 0.0035; // Slower approach
   }
   monsterPos = monsterPosTarget; // Prevent initial snap/retreat
   speed = initSpeed;
