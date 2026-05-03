@@ -230,38 +230,40 @@
   100% { transform: scale(1); box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4); }
 }
 
-.button-group button {
+#startButton, #timeAttackButton, #multiplayerButton, #versusButton {
   font-family: "Voltaire", sans-serif;
-  font-size: clamp(18px, 3.5vw, 28px);
+  font-size: clamp(18px, 4vw, 30px);
   text-transform: uppercase;
   color: #fff;
   border: none;
-  padding: 14px 40px;
+  padding: 15px 40px;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
-  max-width: 320px;
-  background-color: #dc5f45;
-  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.3);
+  max-width: 400px;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 #startButton {
-  animation: pulse 2s infinite ease-in-out;
   background-color: #dc5f45;
+  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4);
+  animation: pulse 2s infinite ease-in-out;
 }
 
 #timeAttackButton {
   background-color: #5f9042;
-  box-shadow: 0 10px 20px rgba(95, 144, 66, 0.3);
+  box-shadow: 0 10px 20px rgba(95, 144, 66, 0.4);
 }
 
 #multiplayerButton {
-  background-color: #3a7bd5;
-  box-shadow: 0 10px 20px rgba(58, 123, 213, 0.3);
+  background-color: #2575fc;
+  box-shadow: 0 10px 20px rgba(37, 117, 252, 0.4);
 }
 
-.button-group button:hover {
+#startButton:hover, #timeAttackButton:hover, #multiplayerButton:hover {
   transform: scale(1.05);
   filter: brightness(1.1);
 }
