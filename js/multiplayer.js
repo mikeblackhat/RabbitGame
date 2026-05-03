@@ -142,19 +142,34 @@ function setupConnection() {
 }
 
 function setupRoleSelection() {
-    const rabbitCard = document.getElementById('selectRabbit');
-    const wolfCard = document.getElementById('selectWolf');
+    const rabbitCard  = document.getElementById('selectRabbit');
+    const wolfCard    = document.getElementById('selectWolf');
+    const waitingMsg  = document.getElementById('roleWaitingMsg');
+
+    if (!isMultiplayer) {
+        // Solo mode — no opponent to wait for
+        if (waitingMsg) waitingMsg.style.display = 'none';
+        // Hide the "Esperando..." status tags inside each card
+        document.querySelectorAll('.status-msg').forEach(function (el) {
+            el.style.display = 'none';
+        });
+    } else {
+        if (waitingMsg) waitingMsg.style.display = 'block';
+        document.querySelectorAll('.status-msg').forEach(function (el) {
+            el.style.display = '';
+        });
+    }
 
     rabbitCard.onclick = () => chooseRole('rabbit');
-    wolfCard.onclick = () => chooseRole('wolf');
+    wolfCard.onclick   = () => chooseRole('wolf');
 }
 
 function chooseRole(role) {
     myRole = role;
     
-    // UI update
+    // UI update — highlight chosen card, grey out the other
     const rabbitCard = document.getElementById('selectRabbit');
-    const wolfCard = document.getElementById('selectWolf');
+    const wolfCard   = document.getElementById('selectWolf');
     
     if (role === 'rabbit') {
         rabbitCard.classList.add('selected');
@@ -166,7 +181,9 @@ function chooseRole(role) {
         rabbitCard.classList.add('disabled');
     }
 
-    sendData({ type: 'roleChosen', role: role });
+    if (isMultiplayer) {
+        sendData({ type: 'roleChosen', role: role });
+    }
     checkAllRolesChosen();
 }
 
