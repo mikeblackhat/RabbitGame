@@ -25,6 +25,9 @@ var cameraPosGameOver = 260;
 var monsterAcceleration = 0.004;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
+var gameMode = "endless"; // "endless" or "timeAttack"
+var timeRemaining = 30;
+var timerInterval = null;
 
 
 function updateMonsterPosition() {
@@ -32,6 +35,13 @@ function updateMonsterPosition() {
   monsterPosTarget -= delta * monsterAcceleration;
   monsterPos += (monsterPosTarget - monsterPos) * delta;
   if (monsterPos < .56) {
+    if (typeof myRole !== 'undefined' && myRole === 'wolf') {
+      var txt = document.getElementById('gameoverText');
+      if (txt) txt.innerHTML = '¡LOBO GANA! 🐺';
+    } else if (typeof myRole !== 'undefined' && myRole === 'rabbit') {
+      var txt = document.getElementById('gameoverText');
+      if (txt) txt.innerHTML = '¡EL LOBO TE ATRAPÓ! 🐺';
+    }
     gameOver();
   }
 
@@ -67,6 +77,7 @@ function gameOver() {
   }
   monster.sit();
   hero.hang();
+  stopTimer();
   monster.heroHolder.add(hero.mesh);
   TweenMax.to(this, 1, { speed: 0 });
 
@@ -209,50 +220,52 @@ function checkCollision() {
   }
 }
 
-function getWolfBonus() {
-  bone.mesh.visible = false;
-  monsterPosTarget += .025;
-  playBonusSound();
-  _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
-}
-
-function getWolfMalus() {
-  obstacle.status = "flying";
-  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-  monsterPosTarget -= .04;
-  onWolfHit();
-  playMalusSound();
-}
-
-
 function getBonus() {
   bonusParticles.mesh.position.copy(carrot.mesh.position);
   bonusParticles.mesh.visible = true;
   bonusParticles.explose();
   carrot.angle += Math.PI / 2;
-  //speed*=.95;
-  monsterPosTarget += .025;
+  
+  if (gameMode === "timeAttack") {
+    timeRemaining += 5;
+    updateTimerUI();
+  } else {
+    monsterPosTarget += .025;
+  }
   playBonusSound();
 }
+
+function getWolfBonus() {
+  bone.mesh.visible = false;
+  
+  if (gameMode === "timeAttack") {
+    timeRemaining += 5;
+    updateTimerUI();
+  } else {
+    monsterPosTarget -= .025; // Wolf moves FORWARD
+  }
+  
+  playBonusSound();
+  _wolfPopup('wolfEatEl', '🦴 ¡HUESO! +VEL');
+}
+
 
 function getMalus() {
   obstacle.status = "flying";
   var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
   TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
   TweenMax.to(obstacle.mesh.rotation, 4, {
-    x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut, onComplete: function () {
-      obstacle.status = "ready";
-      obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-      obstacle.angle = -floorRotation - Math.random() * .4;
-      obstacle.angle = obstacle.angle % (Math.PI * 2);
-      obstacle.mesh.rotation.x = 0;
-      obstacle.mesh.rotation.y = 0;
-      obstacle.mesh.rotation.z = 0;
-      obstacle.mesh.position.z = 0;
-    }
+    x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
+    onComplete: resetObstacle
   });
-  monsterPosTarget -= .04;
+  
+  if (gameMode === "endless") {
+    monsterPosTarget -= .04;
+  } else {
+    timeRemaining -= 3;
+    updateTimerUI();
+  }
+  
   TweenMax.from(this, .5, {
     malusClearAlpha: .5, onUpdate: function () {
       renderer.setClearColor(malusClearColor, malusClearAlpha);
@@ -370,16 +383,31 @@ function init(event) {
   var startScreen = document.getElementById("startScreen");
 
   startBtn.addEventListener("click", function () {
+    gameMode = "endless";
     startScreen.style.opacity = 0;
     setTimeout(function () {
       startScreen.style.display = "none";
-      // Show role selection for Solo mode too
       document.getElementById('roleSelection').style.display = 'flex';
       isMultiplayer = false;
       opponentRole = "cpu";
       setupRoleSelection();
     }, 500);
   });
+
+  var timeAttackBtn = document.getElementById("timeAttackButton");
+  if (timeAttackBtn) {
+    timeAttackBtn.addEventListener("click", function () {
+      gameMode = "timeAttack";
+      startScreen.style.opacity = 0;
+      setTimeout(function () {
+        startScreen.style.display = "none";
+        document.getElementById('roleSelection').style.display = 'flex';
+        isMultiplayer = false;
+        opponentRole = "cpu";
+        setupRoleSelection();
+      }, 500);
+    });
+  }
 
   var audioBtn = document.getElementById("audioButton");
   audioBtn.addEventListener("click", function (e) {
@@ -476,6 +504,17 @@ function resetGame() {
   TweenMax.to(shadowLight.color, 1, { r: pL.r, g: pL.g, b: pL.b });
 
   startBGM();
+  
+  if (gameMode === "timeAttack") {
+    timeRemaining = 30;
+    document.getElementById('timerContainer').style.display = 'flex';
+    updateTimerUI();
+    startTimer();
+  } else {
+    document.getElementById('timerContainer').style.display = 'none';
+    stopTimer();
+  }
+
   updateLevel();
 
   if (myRole === 'wolf') {
@@ -500,6 +539,31 @@ function resetGame() {
 // Wolf UI, wolf bite handlers, consumeObstacle, rabbitAI, onOpponentConsume
 // → all moved to js/wolfMode.js
 
+
+function startTimer() {
+  stopTimer();
+  timerInterval = setInterval(function () {
+    if (gameStatus === "play") {
+      timeRemaining--;
+      updateTimerUI();
+      if (timeRemaining <= 0) {
+        var txt = document.getElementById('gameoverText');
+        if (txt) txt.innerHTML = '¡TIEMPO AGOTADO! ⏱️';
+        gameOver();
+      }
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+}
+
+function updateTimerUI() {
+  var m = Math.floor(timeRemaining / 60);
+  var s = timeRemaining % 60;
+  document.getElementById('timerValue').innerHTML = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
 
 function initUI() {
   fieldDistance = document.getElementById("distValue");
