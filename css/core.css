@@ -57,7 +57,7 @@ html, body {
 
 #audioToggle {
   position: absolute;
-  top: 120px;
+  bottom: 30px;
   right: 30px;
   z-index: 10002;
 }
