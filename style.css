@@ -351,7 +351,7 @@
 /* RACE PROGRESS BAR */
 #raceContainer {
   position: absolute;
-  top: 80px;           /* below the #dist scoreboard */
+  top: 120px;           /* significantly below the #dist scoreboard */
   left: 50%;
   transform: translateX(-50%);
   width: 80%;

@@ -144,8 +144,8 @@ function replay() {
 function updateCarrotPosition() {
   carrot.mesh.rotation.y += delta * 6;
   carrot.mesh.rotation.z = Math.PI / 2 - (floorRotation + carrot.angle);
-  carrot.mesh.position.y = -floorRadius + Math.sin(floorRotation + carrot.angle) * (floorRadius + 50);
-  carrot.mesh.position.x = Math.cos(floorRotation + carrot.angle) * (floorRadius + 50);
+  carrot.mesh.position.y = -floorRadius + Math.sin(floorRotation + carrot.angle) * (floorRadius + 40);
+  carrot.mesh.position.x = Math.cos(floorRotation + carrot.angle) * (floorRadius + 40);
 
 }
 
@@ -153,8 +153,8 @@ function updateBonePosition() {
   if (typeof bone === 'undefined') return;
   bone.mesh.rotation.y += delta * 6;
   bone.mesh.rotation.z = Math.PI / 2 - (floorRotation + bone.angle);
-  bone.mesh.position.y = -floorRadius + Math.sin(floorRotation + bone.angle) * (floorRadius + 50);
-  bone.mesh.position.x = Math.cos(floorRotation + bone.angle) * (floorRadius + 50);
+  bone.mesh.position.y = -floorRadius + Math.sin(floorRotation + bone.angle) * (floorRadius + 40);
+  bone.mesh.position.x = Math.cos(floorRotation + bone.angle) * (floorRadius + 40);
 }
 
 function updateObstaclePosition() {
@@ -180,28 +180,38 @@ function updateFloorRotation() {
 
 function checkCollision() {
   if (myRole === 'rabbit') {
-    var db = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
-    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+    // 2D distance for robust collision
+    var dbx = hero.mesh.position.x - carrot.mesh.position.x;
+    var dby = hero.mesh.position.y - carrot.mesh.position.y;
+    var db = Math.sqrt(dbx*dbx + dby*dby);
 
-    if (db.length() < collisionBonus) {
+    var dmx = hero.mesh.position.x - obstacle.mesh.position.x;
+    var dmy = hero.mesh.position.y - obstacle.mesh.position.y;
+    var dm = Math.sqrt(dmx*dmx + dmy*dmy);
+
+    if (db < collisionBonus) {
       getBonus();
     }
 
-    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
+    if (dm < collisionObstacle && obstacle.status != "flying") {
       getMalus();
     }
   } else if (myRole === 'wolf') {
     // Wolf collision: Bone = Bonus, Obstacle = Malus
-    var db = monster.mesh.position.clone().sub(bone.mesh.position.clone());
-    var dm = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
+    var dbx = monster.mesh.position.x - bone.mesh.position.x;
+    var dby = monster.mesh.position.y - bone.mesh.position.y;
+    var db = Math.sqrt(dbx*dbx + dby*dby);
 
-    if (db.length() < collisionBonus && bone.mesh.visible) {
+    var dmx = monster.mesh.position.x - obstacle.mesh.position.x;
+    var dmy = monster.mesh.position.y - obstacle.mesh.position.y;
+    var dm = Math.sqrt(dmx*dmx + dmy*dmy);
+
+    if (db < collisionBonus && bone.mesh.visible) {
       getWolfBonus();
     }
 
     // Standard hedgehog collision for wolf
-    if (dm.length() < collisionObstacle && obstacle.status != "flying") {
-      // jumpBoost is (wolfJumpOff.v) used in updateMonsterPosition
+    if (dm < collisionObstacle && obstacle.status != "flying") {
       var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
       if (jumpBoost < 5) { // Not high enough in jump
         getWolfMalus();

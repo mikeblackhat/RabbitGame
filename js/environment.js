@@ -54,7 +54,7 @@ function createHero() {
 function createMonster() {
 
   monster = new Monster();
-  monster.mesh.position.z = 20;
+  monster.mesh.position.z = 0;
   //monster.mesh.scale.set(1.2,1.2,1.2);
   scene.add(monster.mesh);
   updateMonsterPosition();
