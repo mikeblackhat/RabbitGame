@@ -45,11 +45,24 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-#restartButton:hover {
-  background: #ffffff;
-  color: #dc5f45;
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+#gameOverOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(30px) brightness(0.3);
+  -webkit-backdrop-filter: blur(30px) brightness(0.3);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+#gameOverOverlay.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* HIGH SCORE SCREEN */

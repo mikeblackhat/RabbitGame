@@ -46,7 +46,17 @@
   line-height: 1;
 }
 
-/* LIVES & BEST SCORE (TOP RIGHT CLUSTER) */
+/* TOP LEFT HUD (RECORD) */
+#topLeftHUD {
+  position: absolute;
+  top: 25px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1000;
+}
+
 #topRightHUD {
   position: absolute;
   top: 25px;
