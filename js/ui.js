@@ -37,23 +37,23 @@ function setupMenuListeners() {
   const saveBtn = document.getElementById("saveScoreButton");
   const restartBtn = document.getElementById("restartButton");
 
-  startBtn.addEventListener("click", () => {
+  startBtn.addEventListener('click', () => {
     gameState.gameMode = "endless";
-    hideStartScreen();
-    showRoleSelection();
     isMultiplayer = false;
     opponentRole = "cpu";
-    setupRoleSelection();
+    myRole = "rabbit"; // default role for solo play
+    hideStartScreen();
+    // Directly start the game without role selection UI
+    resetGame();
   });
 
   if (timeAttackBtn) {
-    timeAttackBtn.addEventListener("click", () => {
+    timeAttackBtn.addEventListener('click', () => {
       gameState.gameMode = "timeAttack";
-      hideStartScreen();
-      showRoleSelection();
       isMultiplayer = false;
-      opponentRole = "cpu";
-      setupRoleSelection();
+      myRole = "rabbit";
+      hideStartScreen();
+      resetGame();
     });
   }
 
