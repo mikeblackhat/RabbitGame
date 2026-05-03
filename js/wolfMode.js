@@ -118,62 +118,105 @@ function resetLives() {
   if (lc) lc.style.display = 'flex';
 }
 
-// ─── WOLF OBSTACLE ───────────────────────────────────────────────────────────
+// ─── WOLF OBSTACLE (3D hedgehog on the track) ──────────────────────────────────────
+// The wolf obstacle is a REAL hedgehog mesh placed on the same circular
+// track as the monster, approaching from slightly ahead. The wolf must
+// jump (SPACE / SALTAR) to clear it before it reaches angle-offset = 0.
+var wolfHedgehogMesh   = null;   // set by createWolfHedgehog() after scene init
+var wolfHedgehogOffset = 0;      // angular offset (radians) ahead of the monster
 var wolfObstacleActive   = false;
 var wolfObstacleTimer    = 6;    // seconds until first obstacle appears
 var wolfObstacleTimeLeft = 0;
-var wolfObstacleWindow   = 2.8;  // seconds wolf has to react
+var wolfObstacleWindow   = 2.8;  // seconds the hedgehog takes to reach the wolf
+var WOLF_HEDGEHOG_START_OFFSET = 0.30; // how far ahead the hedgehog spawns
+
+// Jump animation offset (added to monster radial distance in main.js)
+var wolfJumpOffset = { value: 0 };
+var wolfIsJumping  = false;
+
+/** Called ONCE from main.js init() after scene is ready */
+function createWolfHedgehog() {
+  if (typeof Hedgehog === 'undefined' || !scene) return;
+  var h = new Hedgehog();
+  h.mesh.visible = false;
+  scene.add(h.mesh);
+  wolfHedgehogMesh = h.mesh;
+}
+
+/** Repositions the wolf hedgehog mesh every frame */
+function updateWolfHedgehogPosition() {
+  if (!wolfHedgehogMesh) return;
+  if (!wolfObstacleActive) { wolfHedgehogMesh.visible = false; return; }
+  wolfHedgehogMesh.visible = true;
+  var monsterAngle   = Math.PI * monsterPos;
+  var hedgehogAngle  = monsterAngle + wolfHedgehogOffset;
+  wolfHedgehogMesh.position.y = -floorRadius + Math.sin(hedgehogAngle) * (floorRadius + 12);
+  wolfHedgehogMesh.position.x = Math.cos(hedgehogAngle) * (floorRadius + 15);
+  wolfHedgehogMesh.rotation.z = -Math.PI / 2 + hedgehogAngle;
+}
 
 function tickWolfObstacle(dt) {
-  if (wolfObstacleTimer > 0) { wolfObstacleTimer -= dt; return; }
+  if (wolfObstacleTimer > 0) { wolfObstacleTimer -= dt; updateWolfHedgehogPosition(); return; }
 
   if (!wolfObstacleActive) {
     wolfObstacleActive   = true;
     wolfObstacleTimeLeft = wolfObstacleWindow;
+    wolfHedgehogOffset   = WOLF_HEDGEHOG_START_OFFSET;
     spawnWolfObstacle();
   } else {
     wolfObstacleTimeLeft -= dt;
+    // Smoothly decrease angular offset so hedgehog slides toward monster
+    wolfHedgehogOffset = Math.max(0,
+      (wolfObstacleTimeLeft / wolfObstacleWindow) * WOLF_HEDGEHOG_START_OFFSET
+    );
+    // Update progress bar
     var pct = Math.max(0, wolfObstacleTimeLeft / wolfObstacleWindow);
     var bar = document.getElementById('wolfObstacleProgress');
     if (bar) bar.style.width = (pct * 100) + '%';
+
     if (wolfObstacleTimeLeft <= 0) {
       wolfObstacleActive = false;
       wolfObstacleTimer  = Math.max(4, 8 - (typeof level !== 'undefined' ? level * 0.4 : 0));
       hideWolfObstacleUI();
-      onWolfHit();
+      if (!wolfIsJumping) {
+        onWolfHit();                         // wolf didn't jump in time
+      } else {
+        _showWolfPopup('wolfEatFeedback', '⬆️ ¡Saltó!');
+      }
     }
   }
+  updateWolfHedgehogPosition();
 }
 
 function spawnWolfObstacle() {
   var container = document.getElementById('wolfObstacleContainer');
-  if (!container) return;
-  container.style.display = 'flex';
-  var rock = document.getElementById('wolfObstacleRock');
-  if (rock) {
-    TweenMax.killTweensOf(rock);
-    TweenMax.fromTo(rock, wolfObstacleWindow,
-      { left: '105%' },
-      { left: '-20%', ease: Linear.easeNone }
-    );
-  }
+  if (container) container.style.display = 'flex';
   var bar = document.getElementById('wolfObstacleProgress');
   if (bar) bar.style.width = '100%';
 }
 
 function hideWolfObstacleUI() {
+  if (wolfHedgehogMesh) wolfHedgehogMesh.visible = false;
   var container = document.getElementById('wolfObstacleContainer');
   if (container) container.style.display = 'none';
-  var rock = document.getElementById('wolfObstacleRock');
-  if (rock) TweenMax.killTweensOf(rock);
+}
+
+/** Animate the wolf/monster visually jumping (outward on the circle) */
+function animateWolfJump() {
+  if (wolfIsJumping) return;
+  wolfIsJumping = true;
+  var spd = Math.max(0.35, 8 / Math.max(speed || 5, 1));
+  TweenMax.killTweensOf(wolfJumpOffset);
+  TweenMax.to(wolfJumpOffset, spd / 2, { value: 38, ease: Power2.easeOut });
+  TweenMax.to(wolfJumpOffset, spd / 2, {
+    value: 0, ease: Power4.easeIn, delay: spd / 2,
+    onComplete: function () { wolfIsJumping = false; }
+  });
 }
 
 function wolfJump() {
-  if (!wolfObstacleActive || gameStatus !== 'play') return;
-  wolfObstacleActive = false;
-  wolfObstacleTimer  = Math.max(4, 8 - (typeof level !== 'undefined' ? level * 0.4 : 0));
-  hideWolfObstacleUI();
-  _showWolfPopup('wolfEatFeedback', '⬆️ ¡Saltó!');
+  if (gameStatus !== 'play') return;
+  animateWolfJump();  // animate jump regardless (wolf sees the hedgehog approach)
 }
 
 function setupWolfJumpControls() {
