@@ -301,8 +301,9 @@ function getMalus() {
     }
   });
   playMalusSound();
-  // In wolf mode: count rabbit hedgehog hits (3 = wolf wins)
-  if (myRole === 'wolf' && !isMultiplayer) onRabbitHit();
+  
+  // Count rabbit hedgehog hits (3 = Game Over)
+  if (!isMultiplayer) onRabbitHit();
 }
 
 function updateDistance() {
