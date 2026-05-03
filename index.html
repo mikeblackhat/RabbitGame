@@ -14,6 +14,13 @@
 
   <div id="world"></div>
 
+  <div id="raceContainer">
+    <div id="raceLine">
+      <div id="p1Marker" class="marker">🐰 P1</div>
+      <div id="p2Marker" class="marker">🐺 P2</div>
+    </div>
+  </div>
+
   <div id="gameoverInstructions">Fin del juego</div>
 
   <div id="gameOverOverlay"></div>
@@ -42,17 +49,63 @@
 
   <div id="startScreen">
     <h1 id="gameTitle">Atrapa al Valiente Conejo</h1>
-    <button id="startButton">Comienza el juego</button>
+    <div class="button-group">
+      <button id="startButton">Modo Solitario</button>
+      <button id="multiplayerButton">Modo Competitivo</button>
+    </div>
+  </div>
+
+  <div id="multiplayerMenu" style="display: none;">
+    <h2>Multijugador Online</h2>
+    <p id="peerIdDisplay">Conectando...</p>
+    <div class="room-actions">
+      <div class="room-section">
+        <button id="createRoomBtn">Crear Sala Libre</button>
+      </div>
+      <div class="divider"><span>O</span></div>
+      <div class="room-section">
+        <input type="text" id="roomCodeInput" placeholder="Código de Sala">
+        <button id="joinRoomBtn">Unirse a Sala</button>
+      </div>
+    </div>
+    <button id="backToMenuBtn" class="back-btn">Volver</button>
+  </div>
+
+  <div id="waitingRoom" style="display: none;">
+    <h2>Esperando Oponente...</h2>
+    <div class="loader"></div>
+    <p>Código de tu sala: <strong id="currentRoomCode"></strong></p>
+    <button id="cancelWaitingBtn" class="back-btn">Cancelar</button>
+  </div>
+
+  <div id="roleSelection" style="display: none;">
+    <h2>Selecciona tu Rol</h2>
+    <div class="roles-container">
+      <div id="selectRabbit" class="role-card">
+        <div class="role-icon">🐰</div>
+        <h3>Conejo</h3>
+        <p>Salta para esquivar obstáculos y escapar del lobo.</p>
+        <span class="status-msg">Esperando...</span>
+      </div>
+      <div id="selectWolf" class="role-card">
+        <div class="role-icon">🐺</div>
+        <h3>Lobo</h3>
+        <p>Haz click en los erizos para comerlos y atrapar al conejo.</p>
+        <span class="status-msg">Esperando...</span>
+      </div>
+    </div>
+    <p id="roleWaitingMsg">Esperando que el oponente elija...</p>
   </div>
 
   <div id="audioToggle">
     <button id="audioButton">🔊</button>
   </div>
 
-
   <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r80/three.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js'></script>
   <script src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/264161/OrbitControls.js'></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="./js/multiplayer.js"></script>
   <script src="./js/main.js"></script>
   <script src="./js/scene.js"></script>
   <script src="./js/audio.js"></script>

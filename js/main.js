@@ -76,6 +76,10 @@ function gameOver() {
   obstacle.mesh.visible = false;
   stopBGM();
   playGameOverSound();
+
+  if (isMultiplayer) {
+    sendData({ type: 'gameOver', distance: d });
+  }
 }
 
 function replay() {
@@ -224,6 +228,17 @@ function updateDistance() {
   if (Math.floor(d) >= level * 1000) {
     updateLevel();
   }
+
+  // MULTIPLAYER / CPU SYNC
+  if (isMultiplayer) {
+    broadcastDistance(d);
+  } else {
+    // CPU Progress in Solo Mode
+    // CPU speed could be slightly varied or fixed
+    opponentDistance += delta * (initSpeed + level * 2); 
+  }
+  
+  updateRaceLine();
 }
 
 function updateLevel() {
@@ -265,7 +280,11 @@ function loop() {
     updateMonsterPosition();
     updateCarrotPosition();
     updateObstaclePosition();
-    checkCollision();
+    
+    // Only check collisions for rabbit player
+    if (myRole === 'rabbit') {
+        checkCollision();
+    }
   }
 
   render();
@@ -293,13 +312,19 @@ function init(event) {
   gameStatus = "waiting";
 
   var startBtn = document.getElementById("startButton");
+  var multiBtn = document.getElementById("multiplayerButton");
   var startScreen = document.getElementById("startScreen");
+
   startBtn.addEventListener("click", function () {
     startScreen.style.opacity = 0;
     setTimeout(function () {
       startScreen.style.display = "none";
+      // Show role selection for Solo mode too
+      document.getElementById('roleSelection').style.display = 'flex';
+      isMultiplayer = false;
+      opponentRole = "cpu"; 
+      setupRoleSelection();
     }, 500);
-    resetGame();
   });
 
   var audioBtn = document.getElementById("audioButton");
@@ -368,6 +393,8 @@ function resetGame() {
   speed = initSpeed;
   level = 0;
   distance = 0;
+  if (!isMultiplayer) opponentDistance = 0; // Reset CPU distance
+  
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
   gameStatus = "play";
@@ -386,6 +413,58 @@ function resetGame() {
 
   startBGM();
   updateLevel();
+  
+  if (myRole === 'wolf') {
+      // Wolf cannot jump
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('touchstart', handleMouseDown);
+      
+      // Wolf uses raycasting for obstacles
+      document.addEventListener('mousedown', handleWolfClick);
+  } else {
+      // Rabbit controls
+      document.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('touchstart', handleMouseDown);
+      document.removeEventListener('mousedown', handleWolfClick);
+  }
+}
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+
+function handleWolfClick(event) {
+  if (gameStatus !== "play") return;
+  
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  
+  // Check intersection with obstacle
+  var intersects = raycaster.intersectObject(obstacle.mesh, true);
+  
+  if (intersects.length > 0) {
+    consumeObstacle();
+  }
+}
+
+function consumeObstacle() {
+    // Wolf eats the obstacle
+    getMalus(); // Reuse obstacle flying animation
+    
+    // Move wolf forward
+    monsterPosTarget += 0.05;
+    
+    if (isMultiplayer) {
+        sendData({ type: 'consumeObstacle' });
+    }
+}
+
+function onOpponentConsume() {
+    // If we are the rabbit, and the wolf opponent consumed an obstacle
+    // we just see the obstacle fly away and the wolf move closer
+    getMalus();
+    monsterPosTarget += 0.05;
 }
 
 function initUI() {

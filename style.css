@@ -192,31 +192,48 @@
   text-align: center;
 }
 
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
 @keyframes pulse {
   0% { transform: scale(1); box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4); }
-  50% { transform: scale(1.08); box-shadow: 0 15px 30px rgba(220, 95, 69, 0.6); }
+  50% { transform: scale(1.05); box-shadow: 0 15px 30px rgba(220, 95, 69, 0.6); }
   100% { transform: scale(1); box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4); }
 }
 
-#startButton {
+#startButton, #versusButton {
   font-family: "Voltaire", sans-serif;
-  font-size: clamp(24px, 5vw, 48px);
+  font-size: clamp(20px, 4vw, 36px);
   text-transform: uppercase;
   color: #fff;
-  background-color: #dc5f45;
   border: none;
-  padding: 20px 40px;
+  padding: 15px 40px;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4);
   transition: all 0.2s ease;
+  width: 100%;
+  max-width: 400px;
+}
+
+#startButton {
+  background-color: #dc5f45;
+  box-shadow: 0 10px 20px rgba(220, 95, 69, 0.4);
   animation: pulse 2s infinite ease-in-out;
 }
 
-#startButton:hover {
-  background-color: #b44b39;
+#versusButton {
+  background-color: #5f9042;
+  box-shadow: 0 10px 20px rgba(95, 144, 66, 0.4);
+}
+
+#startButton:hover, #versusButton:hover {
+  filter: brightness(1.1);
   animation: none;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 #audioToggle {
@@ -304,4 +321,263 @@
 #saveScoreButton:hover {
   background-color: #b44b39;
   transform: scale(1.05);
+}
+
+/* RACE PROGRESS BAR */
+#raceContainer {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  height: 40px;
+  background: rgba(20, 20, 30, 0.4);
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+  overflow: visible;
+  display: none; /* Shown during race */
+}
+
+#raceLine {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-family: "Voltaire", sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: left 0.1s linear;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#p1Marker {
+  background: #dc5f45;
+  color: white;
+  z-index: 2;
+}
+
+#p2Marker {
+  background: #5f9042;
+  color: white;
+  z-index: 1;
+}
+
+/* MULTIPLAYER MENU */
+#multiplayerMenu, #waitingRoom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 20, 30, 0.9);
+  backdrop-filter: blur(15px);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 20px;
+  font-family: "Voltaire", sans-serif;
+}
+
+#multiplayerMenu h2, #waitingRoom h2 {
+  font-size: clamp(30px, 6vw, 60px);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(220, 95, 69, 0.5);
+}
+
+.room-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 40px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.room-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+#roomCodeInput {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  border-radius: 15px;
+  color: white;
+  font-size: 20px;
+  text-align: center;
+  outline: none;
+}
+
+#createRoomBtn, #joinRoomBtn {
+  background: #dc5f45;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 15px;
+  font-size: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#joinRoomBtn {
+  background: #5f9042;
+}
+
+.back-btn {
+  margin-top: 30px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* LOADER */
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-top: 5px solid #dc5f45;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#peerIdDisplay {
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+/* ROLE SELECTION */
+#roleSelection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 20, 30, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: "Voltaire", sans-serif;
+  gap: 40px;
+}
+
+.roles-container {
+  display: flex;
+  gap: 30px;
+  max-width: 900px;
+  padding: 20px;
+}
+
+.role-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.role-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-10px) scale(1.02);
+  border-color: #dc5f45;
+}
+
+.role-card.selected {
+  background: #dc5f45 !important;
+  border-color: white !important;
+  box-shadow: 0 0 30px rgba(220, 95, 69, 0.5);
+}
+
+.role-card.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.role-icon {
+  font-size: 80px;
+  margin-bottom: 10px;
+}
+
+.role-card h3 {
+  font-size: 32px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.role-card p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.status-msg {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 600px) {
+  .roles-container {
+    flex-direction: column;
+  }
 }
