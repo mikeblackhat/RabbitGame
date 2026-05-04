@@ -70,14 +70,25 @@ function loop() {
 }
 
 function updateProximity() {
-  // Natural separation increase (or decrease if wolf)
   const currentAccel = gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier);
   gameState.proximityTarget -= currentAccel;
-  gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta;
+  
+  // Faster transition to prevent 'laggy' wolf position
+  gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 4;
 
-  if (gameState.gameMode === "endless" && gameState.proximity < 0.06) {
-    handleMonsterCaught();
+  if (gameState.gameMode === "endless") {
+    if (gameState.proximity < 0.06) {
+      handleMonsterCaught();
+    } else if (gameState.proximity > 0.7) {
+      handleRabbitEscaped();
+    }
   }
+}
+
+function handleRabbitEscaped() {
+  const txt = document.getElementById('gameoverText');
+  if (txt) txt.innerHTML = '¡ESCAPASTE! 🐰💨';
+  gameOver();
 }
 
 function updateEntityPositions() {
@@ -105,9 +116,9 @@ function updateEntityPositions() {
   monster.mesh.position.x = Math.cos(monsterAngle) * (gameConfig.floorRadius + 15 + jumpBoost);
   monster.mesh.rotation.z = -Math.PI / 2 + monsterAngle;
 
-  // Camera Leaning - Follow the protagonist
-  const focusAngle = (myRole === 'wolf') ? monsterAngle : heroAngle;
-  updateCameraLeaning(focusAngle);
+  // Camera Leaning - Keep both characters in view if possible
+  const midAngle = (heroAngle + monsterAngle) / 2;
+  updateCameraLeaning(midAngle);
 }
 
 function handleMonsterCaught() {
@@ -123,11 +134,14 @@ function handleMonsterCaught() {
 }
 
 function updateCameraLeaning(angle) {
-  const targetCameraX = -Math.cos(angle) * 10;
+  const targetCameraX = -Math.cos(angle) * 15; // Slightly more leaning
   camera.position.x += (targetCameraX - camera.position.x) * gameState.delta * 2;
 
-  const zoomFactor = (gameState.speed - gameConfig.initSpeed) / (gameConfig.maxSpeed - gameConfig.initSpeed);
-  const targetZ = gameConfig.cameraPosGame + zoomFactor * 50;
+  // Dynamic zoom based on proximity
+  const proximityZoom = Math.max(0, (gameState.proximity - 0.15) * 200);
+  const speedZoom = (gameState.speed - gameConfig.initSpeed) / (gameConfig.maxSpeed - gameConfig.initSpeed) * 50;
+  
+  const targetZ = gameConfig.cameraPosGame + speedZoom + proximityZoom;
   camera.position.z += (targetZ - camera.position.z) * gameState.delta;
 }
 
