@@ -18,8 +18,8 @@ function init(event) {
   createWolfObstacle();
   createBone();
   createHeart();
+  console.log("Entities created.");
 
-  // Initialize UI (defined in js/ui.js)
   initUI();
   console.log("UI initialized.");
 
@@ -28,13 +28,13 @@ function init(event) {
     console.log("Multiplayer initialized.");
   }
 
-  setupWolfJumpControls(); // defined in wolfMode.js
+  setupWolfJumpControls();
   console.log("Starting loop.");
   loop();
 }
 
 function loop() {
-  delta = clock.getDelta();
+  var delta = clock.getDelta();
   gameState.delta = delta;
   speed = gameState.speed;
 
