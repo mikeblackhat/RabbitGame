@@ -5,24 +5,26 @@
 
 function checkCollision() {
   // Rabbit collisions
-  var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
-  var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+  if (myRole === 'rabbit' || !isMultiplayer) {
+    var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
+    var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-  if (db_rabbit.length() < gameState.collisionBonus) {
-    getBonus();
-  }
+    if (db_rabbit.length() < gameState.collisionBonus) {
+      getBonus();
+    }
 
-  var dh_rabbit = hero.mesh.position.clone().sub(heart.mesh.position.clone());
-  if (dh_rabbit.length() < gameState.collisionBonus && heart.mesh.visible) {
-    getHeartBonus();
-  }
+    var dh_rabbit = hero.mesh.position.clone().sub(heart.mesh.position.clone());
+    if (dh_rabbit.length() < gameState.collisionBonus && heart.mesh.visible) {
+      getHeartBonus();
+    }
 
-  if (dm_rabbit.length() < gameState.collisionObstacle && obstacle.status != "flying") {
-    getMalus();
+    if (dm_rabbit.length() < gameState.collisionObstacle && obstacle.status != "flying") {
+      getMalus();
+    }
   }
 
   // Wolf collisions
-  if (myRole === 'wolf') {
+  if (myRole === 'wolf' || !isMultiplayer) {
     var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
     var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
