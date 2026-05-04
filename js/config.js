@@ -8,7 +8,8 @@ var initSpeed = 24;
 var maxSpeed = 60;
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;
-var monsterAcceleration = 0.002;
+var monsterAcceleration = 0.0042;
+var monsterLevelMultiplier = 0.0008;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 
@@ -51,12 +52,13 @@ window.gameState = {
 
 // Global config for reference
 window.gameConfig = {
-  floorRadius,
-  initSpeed,
-  maxSpeed,
-  cameraPosGame,
-  cameraPosGameOver,
-  monsterAcceleration,
-  malusClearColor,
-  malusClearAlpha
+  floorRadius: 200,
+  initSpeed: 24,
+  maxSpeed: 60,
+  cameraPosGame: 160,
+  cameraPosGameOver: 260,
+  monsterAcceleration: 0.0042,
+  monsterLevelMultiplier: 0.0008,
+  malusClearColor: 0xb44b39,
+  malusClearAlpha: 0
 };
