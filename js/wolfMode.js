@@ -66,11 +66,7 @@ var wolfAI = {
     this.jumpCooldown -= dt;
 
     var monsterAngle = (myRole === 'rabbit') ? Math.PI * (0.5 + gameState.proximity) : Math.PI * 0.5;
-    var obstAngle = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
     var boneAngle = (gameState.floorRotation + bone.angle) % (Math.PI * 2);
-
-    var obstDiff = Math.abs(monsterAngle - obstAngle);
-    if (obstDiff > Math.PI) obstDiff = Math.PI * 2 - obstDiff;
 
     var boneDiff = Math.abs(monsterAngle - boneAngle);
     if (boneDiff > Math.PI) boneDiff = Math.PI * 2 - boneDiff;

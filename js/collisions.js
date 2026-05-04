@@ -97,24 +97,7 @@ function getMalus() {
 }
 
 function getWolfMalus() {
-  obstacle.status = "flying";
-  var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-  TweenMax.to(obstacle.mesh.rotation, 4, {
-    x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
-    onComplete: resetObstacle
-  });
-
-  if (gameState.gameMode === "endless") {
-    gameState.proximityTarget += .04;
-    _wolfPopup('malusPopup', '💥 ¡EL CONEJO ESCAPA!', '#dc5f45');
-  } else {
-    gameState.timeRemaining -= 3;
-    updateTimerUI();
-    _wolfPopup('malusPopup', '💥 -3 SEG', '#dc5f45');
-  }
-  onWolfHit();
-  playMalusSound();
+  // Wolf is immune to obstacles
 }
 
 function getHeartBonus() {
