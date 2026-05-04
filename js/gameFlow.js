@@ -94,7 +94,7 @@ function resetGame() {
   if (!isMultiplayer) gameState.opponentDistance = 0;
 
   carrot.mesh.visible = true;
-  obstacle.mesh.visible = true;
+  obstacles.forEach(obs => obs.mesh.visible = true);
   if (heart) heart.mesh.visible = false;
   if (typeof bone !== 'undefined') bone.mesh.visible = false;
 
