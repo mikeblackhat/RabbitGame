@@ -54,8 +54,10 @@ function getBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🥕 +5 SEG', '#5f9042');
   } else {
-    gameState.proximityTarget += .075; // Tripled from .025
-    _wolfPopup('bonusPopup', '🥕 CONEJO: +DISTANCIA', '#5f9042');
+    const isLucky = Math.random() > 0.5;
+    const bonusValue = isLucky ? .075 : .025;
+    gameState.proximityTarget += bonusValue;
+    _wolfPopup('bonusPopup', isLucky ? '🌟 ¡ZANAHORIA TRIPLE!' : '🥕 CONEJO: +DISTANCIA', '#5f9042');
   }
   playBonusSound();
 }
