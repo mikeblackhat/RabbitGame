@@ -54,7 +54,7 @@ window.gameState = {
 window.gameConfig = {
   floorRadius: 200,
   initSpeed: 30,
-  maxSpeed: 75,
+  maxSpeed: 48,
   cameraPosGame: 160,
   cameraPosGameOver: 260,
   monsterAcceleration: 0.0075,
