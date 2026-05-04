@@ -9,12 +9,12 @@ function checkCollision() {
     var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
     var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    if (db_rabbit.length() < gameState.collisionBonus) {
+    if (db_rabbit.length() < gameState.collisionBonus && carrot.mesh.visible) {
       getBonus();
     }
 
     var dh_rabbit = hero.mesh.position.clone().sub(heart.mesh.position.clone());
-    if (dh_rabbit.length() < gameState.collisionBonus && heart.mesh.visible) {
+    if (dh_rabbit.length() < gameState.collisionBonus && heart && heart.mesh.visible) {
       getHeartBonus();
     }
 
@@ -28,7 +28,7 @@ function checkCollision() {
     var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
     var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
-    if (db_wolf.length() < gameState.collisionBonus && (typeof bone !== 'undefined' && bone.mesh.visible)) {
+    if (db_wolf.length() < gameState.collisionBonus && bone && bone.mesh.visible) {
       getWolfBonus();
     }
 
