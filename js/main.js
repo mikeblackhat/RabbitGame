@@ -68,7 +68,7 @@ function loop() {
   render();
   requestAnimationFrame(loop);
 }
-
+function updateProximity() {
   // Calculate base acceleration
   let currentAccel = (gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier));
   
