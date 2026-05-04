@@ -11,11 +11,9 @@ var rabbitAI = {
     if (gameState.gameStatus !== 'play') return;
     this.jumpCooldown -= dt;
 
-    // Dynamic reaction based on speed
     var currentSpeedFactor = (gameState.speed / gameConfig.initSpeed);
     var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.1);
 
-    // Detected obstacles
     var heroAngle  = Math.PI / 2;
     var obstAngle  = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
     var carrotAngle = (gameState.floorRotation + carrot.angle) % (Math.PI * 2);
@@ -26,7 +24,6 @@ var rabbitAI = {
     var carrotDiff = Math.abs(heroAngle - carrotAngle);
     if (carrotDiff > Math.PI) carrotDiff = Math.PI * 2 - carrotDiff;
 
-    // 1. Priority: Avoid Hedgehogs
     if (obstacle.status !== 'flying' && obstDiff < adjustedReactionDist && this.jumpCooldown <= 0) {
       if (hero.status !== 'jumping') {
         hero.jump();
@@ -35,7 +32,6 @@ var rabbitAI = {
       return; 
     }
 
-    // 2. Secondary: Get Carrots
     var landingZoneObstAngle = (gameState.floorRotation + obstacle.angle + 0.3) % (Math.PI * 2); 
     var landingObstDiff = Math.abs(heroAngle - landingZoneObstAngle);
     if (landingObstDiff > Math.PI) landingObstDiff = Math.PI * 2 - landingObstDiff;
@@ -47,10 +43,9 @@ var rabbitAI = {
       }
     }
 
-    // 3. Strategic: Escape Boost
-    if (gameState.monsterPos < 0.65) {
+    if (gameState.proximity < 0.65) {
       this.evasionBoost += dt * 0.005;
-      gameState.monsterPosTarget  += this.evasionBoost;
+      gameState.proximityTarget += this.evasionBoost;
       this.evasionBoost  = Math.min(this.evasionBoost, 0.015);
     } else {
       this.evasionBoost = 0;
@@ -60,6 +55,47 @@ var rabbitAI = {
   reset: function () {
     this.jumpCooldown = 0;
     this.evasionBoost = 0;
+  }
+};
+
+var wolfAI = {
+  reactionDist: 0.6,
+  jumpCooldown: 0,
+  
+  update: function(dt) {
+    if (gameState.gameStatus !== 'play') return;
+    this.jumpCooldown -= dt;
+
+    var monsterAngle = Math.PI / 2;
+    var obstAngle = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
+    var boneAngle = (gameState.floorRotation + bone.angle) % (Math.PI * 2);
+
+    var obstDiff = Math.abs(monsterAngle - obstAngle);
+    if (obstDiff > Math.PI) obstDiff = Math.PI * 2 - obstDiff;
+
+    var boneDiff = Math.abs(monsterAngle - boneAngle);
+    if (boneDiff > Math.PI) boneDiff = Math.PI * 2 - boneDiff;
+
+    // 1. Avoid Hedgehogs
+    if (obstacle.status !== 'flying' && obstDiff < this.reactionDist && this.jumpCooldown <= 0) {
+      if (!wolfIsJumping) {
+        wolfJump();
+        this.jumpCooldown = 0.5;
+      }
+      return;
+    }
+
+    // 2. Catch Bones (Wolf only needs to jump if it's too high, but AI jumps for flair/bonus)
+    if (bone.mesh.visible && boneDiff < 0.3 && this.jumpCooldown <= 0) {
+      if (!wolfIsJumping) {
+        wolfJump();
+        this.jumpCooldown = 0.7;
+      }
+    }
+  },
+
+  reset: function() {
+    this.jumpCooldown = 0;
   }
 };
 
@@ -182,6 +218,9 @@ function updateWolfMode(dt) {
   if (!isMultiplayer) {
     if (myRole !== 'rabbit') {
       rabbitAI.update(dt);
+    }
+    if (myRole !== 'wolf') {
+      wolfAI.update(dt);
     }
     tickWolfItems(dt);
   }
