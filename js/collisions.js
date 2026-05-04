@@ -54,7 +54,7 @@ function getBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🥕 +5 SEG', '#5f9042');
   } else {
-    gameState.proximityTarget += .025;
+    gameState.proximityTarget += .075; // Tripled from .025
     _wolfPopup('bonusPopup', '🥕 CONEJO: +DISTANCIA', '#5f9042');
   }
   playBonusSound();
