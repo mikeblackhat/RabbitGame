@@ -15,6 +15,11 @@ function updateDistance() {
     updateLevel();
   }
 
+  // Win condition at 10,000 meters
+  if (Math.floor(d) >= 10000 && gameState.gameStatus === "play") {
+    handleRabbitEscaped();
+  }
+
   // Update Progress Bar / Race Line
   if (typeof updateRaceLine === 'function') {
     updateRaceLine();

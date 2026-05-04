@@ -241,7 +241,7 @@ function broadcastDistance(dist) {
 function updateRaceLine() {
     const p1Marker = document.getElementById('p1Marker');
     const p2Marker = document.getElementById('p2Marker');
-    const trackLength = 2000; // Smaller track length so movement is visible (10000 was too long)
+    const trackLength = 10000; // Win condition is at 10,000m
     
     // Use same divisor as the main UI distance
     const myDist = gameState.distance / 1.5;
