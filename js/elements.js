@@ -395,8 +395,11 @@ Hedgehog.prototype.update = function(delta, floorRotation) {
   if (this.status == "flying") return;
 
   if (floorRotation + this.angle > 3.0) {
-    // Increased randomness: from 0.1 to 1.2 radians gap
-    this.angle = -floorRotation - 0.1 - Math.random() * 1.1;
+    this.mesh.visible = true;
+    this.status = "ready";
+    // Gap decreases as level increases to maintain density at high speeds
+    var gapRange = Math.max(0.3, 1.1 - (gameState.level * 0.08));
+    this.angle = -floorRotation - 0.2 - Math.random() * gapRange;
     this.body.rotation.y = Math.random() * Math.PI * 2;
   }
 
