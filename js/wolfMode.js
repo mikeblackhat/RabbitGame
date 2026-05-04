@@ -12,6 +12,7 @@ var rabbitAI = {
     this.jumpCooldown -= dt;
 
     var heroAngle = (myRole === 'wolf') ? Math.PI * (0.5 - gameState.proximity) : Math.PI * 0.5;
+    var currentSpeedFactor = (gameState.speed / gameConfig.initSpeed);
     var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.1);
     var obstAngle  = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
     var carrotAngle = (gameState.floorRotation + carrot.angle) % (Math.PI * 2);
