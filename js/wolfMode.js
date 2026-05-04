@@ -204,7 +204,7 @@ function wolfJump() {
   if (gameState.gameStatus !== 'play') return;
   if (wolfIsJumping) return;
   wolfIsJumping = true;
-  var spd = Math.max(0.35, 7 / Math.max(gameState.speed || 5, 1));
+  var spd = 0.5 + (4 / Math.max(gameState.speed || 1, 1));
   TweenMax.killTweensOf(wolfJumpOff);
   TweenMax.to(wolfJumpOff, spd / 2, { v: 40, ease: Power2.easeOut });
   TweenMax.to(wolfJumpOff, spd / 2, {
