@@ -52,11 +52,11 @@ function getBonus() {
       distScaling = 1 + (d - 1000) / 2000; // Bonus increases progressively after 1000m
     }
 
-    const isLucky = Math.random() > 0.5;
-    const bonusValue = (isLucky ? .075 : .025) * distScaling;
+    const isLucky = Math.random() > 0.4; // Slightly more common but less extreme
+    const bonusValue = (isLucky ? .05 : .02) * distScaling;
     gameState.proximityTarget += bonusValue;
     
-    let msg = isLucky ? '🌟 ¡ZANAHORIA TRIPLE!' : '🥕 CONEJO: +DISTANCIA';
+    let msg = isLucky ? '🌟 ¡SUPER ZANAHORIA!' : '🥕 CONEJO: +DISTANCIA';
     if (distScaling > 1.1) msg += ' (VETERANO)';
     _wolfPopup('bonusPopup', msg, '#5f9042');
   }
@@ -70,8 +70,8 @@ function getWolfBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🦴 LOBO: +5 SEG', '#2575fc');
   } else {
-    gameState.proximityTarget -= .03; // Reduced from .08 for better balance
-    _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#2575fc');
+    gameState.proximityTarget -= .02; // Reduced bone power for longer play
+    _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#dc5f45');
   }
   playBonusSound();
 }

@@ -78,9 +78,9 @@ function updateProximity() {
   gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 2.5;
 
   if (gameState.gameMode === "endless") {
-    if (gameState.proximity < 0.06) {
+    if (gameState.proximity < 0.04) { // Lobo has to be closer
       handleMonsterCaught();
-    } else if (gameState.proximity > 0.7) {
+    } else if (gameState.proximity > 0.95) { // Rabbit needs a bigger lead to win
       handleRabbitEscaped();
     }
   }
