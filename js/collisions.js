@@ -23,20 +23,12 @@ function checkCollision() {
     }
   }
 
-  // Wolf collisions
+  // Wolf collisions (Bones and Heart only - Obstacles don't affect Wolf)
   if (myRole === 'wolf' || !isMultiplayer) {
     var db_wolf = monster.mesh.position.clone().sub(bone.mesh.position.clone());
-    var dm_wolf = monster.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
     if (db_wolf.length() < gameState.collisionBonus && bone && bone.mesh.visible) {
       getWolfBonus();
-    }
-
-    if (dm_wolf.length() < gameState.collisionObstacle && obstacle.status != "flying") {
-      var jumpBoost = (typeof wolfJumpOff !== 'undefined') ? wolfJumpOff.v : 0;
-      if (jumpBoost < 5) { // Not high enough in jump
-        getWolfMalus();
-      }
     }
   }
 }
