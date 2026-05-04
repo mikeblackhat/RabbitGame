@@ -347,10 +347,12 @@ LifeHeart = function () {
   this.mesh = new THREE.Group();
 
   var heartMat = new THREE.MeshPhongMaterial({
-    color: 0xff0044,
-    shininess: 30,
+    color: 0xff0000,
+    emissive: 0xff0044,
+    emissiveIntensity: 0.5,
+    shininess: 100,
     specular: 0xffffff,
-    shading: THREE.FlatShading
+    flatShading: true
   });
 
   // Create a more 3D heart using spheres and a cone
@@ -372,7 +374,7 @@ LifeHeart = function () {
   this.bottom.position.y = -1;
   this.mesh.add(this.bottom);
 
-  this.mesh.scale.set(0.8, 0.8, 0.8);
+  this.mesh.scale.set(1.2, 1.2, 1.2);
 
   this.mesh.traverse(function (object) {
     if (object instanceof THREE.Mesh) {
