@@ -398,8 +398,8 @@ Bone.prototype.update = function(delta, floorRotation) {
   if (!this.mesh.visible) return;
   this.mesh.rotation.y += delta * 6;
   this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
-  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 30);
-  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 30);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 45);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 45);
 
   // Deactivate if passed behind camera
   if (floorRotation + this.angle > 3.0) {
@@ -411,8 +411,8 @@ LifeHeart.prototype.update = function(delta, floorRotation) {
   if (!this.mesh.visible) return;
   this.mesh.rotation.y += delta * 6;
   this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
-  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
-  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 45);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 45);
 
   // Deactivate if passed behind camera
   if (floorRotation + this.angle > 3.0) {

@@ -53,7 +53,7 @@ function getBonus() {
     _wolfPopup('bonusPopup', '🥕 +5 SEG', '#5f9042');
   } else {
     gameState.proximityTarget += .025;
-    _wolfPopup('bonusPopup', '🥕 ¡MÁS DISTANCIA!', '#5f9042');
+    _wolfPopup('bonusPopup', '🥕 CONEJO: +DISTANCIA', '#5f9042');
   }
   playBonusSound();
 }
@@ -63,10 +63,10 @@ function getWolfBonus() {
   if (gameState.gameMode === "timeAttack") {
     gameState.timeRemaining += 5;
     updateTimerUI();
-    _wolfPopup('bonusPopup', '🦴 +5 SEG', '#2575fc');
+    _wolfPopup('bonusPopup', '🦴 LOBO: +5 SEG', '#2575fc');
   } else {
     gameState.proximityTarget -= .025; 
-    _wolfPopup('bonusPopup', '🦴 ¡MÁS VELOCIDAD!', '#2575fc');
+    _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#2575fc');
   }
   playBonusSound();
 }
