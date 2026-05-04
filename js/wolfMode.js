@@ -58,7 +58,7 @@ var rabbitAI = {
 };
 
 var wolfAI = {
-  reactionDist: 0.6,
+  reactionDist: 0.45,
   jumpCooldown: 0,
   
   update: function(dt) {
@@ -84,8 +84,8 @@ var wolfAI = {
       return;
     }
 
-    // 2. Catch Bones (Wolf only needs to jump if it's too high, but AI jumps for flair/bonus)
-    if (bone.mesh.visible && boneDiff < 0.3 && this.jumpCooldown <= 0) {
+    // 2. Catch Bones
+    if (bone.mesh.visible && boneDiff < 0.22 && this.jumpCooldown <= 0) {
       if (!wolfIsJumping) {
         wolfJump();
         this.jumpCooldown = 0.7;
