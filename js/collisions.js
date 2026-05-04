@@ -67,7 +67,7 @@ function getWolfBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🦴 LOBO: +5 SEG', '#2575fc');
   } else {
-    gameState.proximityTarget -= .05; // Doubled from 0.025 to keep wolf competitive
+    gameState.proximityTarget -= .08; // Significant jump for catching bone
     _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#2575fc');
   }
   playBonusSound();
@@ -83,7 +83,7 @@ function getMalus() {
   });
 
   if (gameState.gameMode === "endless") {
-    gameState.proximityTarget -= .04;
+    gameState.proximityTarget -= .12; // Increased penalty (was .04)
     _wolfPopup('malusPopup', '💥 ¡EL LOBO SE ACERCA!', '#dc5f45');
   } else {
     var txt = document.getElementById('gameoverText');

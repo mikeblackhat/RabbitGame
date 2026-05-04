@@ -71,7 +71,8 @@ function loop() {
 
 function updateProximity() {
   // Natural separation increase (or decrease if wolf)
-  gameState.proximityTarget += gameState.delta * gameState.monsterAcceleration;
+  const currentAccel = gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier);
+  gameState.proximityTarget -= currentAccel;
   gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta;
 
   if (gameState.gameMode === "endless" && gameState.proximity < 0.06) {
