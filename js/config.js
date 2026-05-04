@@ -8,8 +8,8 @@ var initSpeed = 24;
 var maxSpeed = 60;
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;
-var monsterAcceleration = 0.0042;
-var monsterLevelMultiplier = 0.0008;
+var monsterAcceleration = 0.015;
+var monsterLevelMultiplier = 0.002;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 
@@ -57,8 +57,8 @@ window.gameConfig = {
   maxSpeed: 60,
   cameraPosGame: 160,
   cameraPosGameOver: 260,
-  monsterAcceleration: 0.0042,
-  monsterLevelMultiplier: 0.0008,
+  monsterAcceleration: 0.015,
+  monsterLevelMultiplier: 0.002,
   malusClearColor: 0xb44b39,
   malusClearAlpha: 0
 };

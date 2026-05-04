@@ -70,11 +70,12 @@ function loop() {
 }
 
 function updateProximity() {
-  const currentAccel = gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier);
+  // Multiply by delta to make it per-second, not per-frame
+  const currentAccel = (gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier)) * gameState.delta;
   gameState.proximityTarget -= currentAccel;
   
-  // Faster transition to prevent 'laggy' wolf position
-  gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 4;
+  // Smoothly move proximity towards target
+  gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 2.5;
 
   if (gameState.gameMode === "endless") {
     if (gameState.proximity < 0.06) {
