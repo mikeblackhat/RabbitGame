@@ -395,10 +395,16 @@ Hedgehog.prototype.update = function(delta, floorRotation) {
 }
 
 Bone.prototype.update = function(delta, floorRotation) {
+  if (!this.mesh.visible) return;
   this.mesh.rotation.y += delta * 6;
   this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
-  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
-  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 50);
+  this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 30);
+  this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 30);
+
+  // Deactivate if passed behind camera
+  if (floorRotation + this.angle > 3.0) {
+    this.mesh.visible = false;
+  }
 }
 
 LifeHeart.prototype.update = function(delta, floorRotation) {
@@ -407,6 +413,11 @@ LifeHeart.prototype.update = function(delta, floorRotation) {
   this.mesh.rotation.z = Math.PI / 2 - (floorRotation + this.angle);
   this.mesh.position.y = -gameConfig.floorRadius + Math.sin(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
   this.mesh.position.x = Math.cos(floorRotation + this.angle) * (gameConfig.floorRadius + 40);
+
+  // Deactivate if passed behind camera
+  if (floorRotation + this.angle > 3.0) {
+    this.mesh.visible = false;
+  }
 }
 
 function removeParticle(p) {

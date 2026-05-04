@@ -11,10 +11,8 @@ var rabbitAI = {
     if (gameState.gameStatus !== 'play') return;
     this.jumpCooldown -= dt;
 
-    var currentSpeedFactor = (gameState.speed / gameConfig.initSpeed);
+    var heroAngle = (myRole === 'wolf') ? Math.PI * (0.5 - gameState.proximity) : Math.PI * 0.5;
     var adjustedReactionDist = this.reactionDist * (1 + (currentSpeedFactor - 1) * 0.1);
-
-    var heroAngle  = Math.PI / 2;
     var obstAngle  = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
     var carrotAngle = (gameState.floorRotation + carrot.angle) % (Math.PI * 2);
 
@@ -66,7 +64,7 @@ var wolfAI = {
     if (gameState.gameStatus !== 'play') return;
     this.jumpCooldown -= dt;
 
-    var monsterAngle = Math.PI / 2;
+    var monsterAngle = (myRole === 'rabbit') ? Math.PI * (0.5 + gameState.proximity) : Math.PI * 0.5;
     var obstAngle = (gameState.floorRotation + obstacle.angle) % (Math.PI * 2);
     var boneAngle = (gameState.floorRotation + bone.angle) % (Math.PI * 2);
 
@@ -172,7 +170,7 @@ function tickWolfItems(dt) {
     boneTimer -= dt;
     if (boneTimer <= 0) {
       bone.mesh.visible = true;
-      bone.angle = -gameState.floorRotation + Math.PI * 0.8;
+      bone.angle = -gameState.floorRotation - 0.8;
       boneTimer = 2 + Math.random() * 3;
     }
   }
@@ -182,7 +180,7 @@ function tickWolfItems(dt) {
       heartSpawnTimer -= dt;
       if (heartSpawnTimer <= 0) {
         heart.mesh.visible = true;
-        heart.angle = -gameState.floorRotation + Math.PI * 0.8;
+        heart.angle = -gameState.floorRotation - 0.8;
         heartSpawnTimer = 10 + Math.random() * 5;
       }
     } else {
