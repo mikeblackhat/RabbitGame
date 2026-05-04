@@ -162,7 +162,7 @@ Monster = function () {
 }
 
 Monster.prototype.run = function () {
-  var s = Math.min(speed, maxSpeed);
+  var s = Math.min(speed, 48); // Cap animation speed to avoid blur
   this.runningCycle += delta * s * .7;
   this.runningCycle = this.runningCycle % (Math.PI * 2);
   var t = this.runningCycle;

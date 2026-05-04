@@ -158,7 +158,7 @@ Hero = function () {
 Hero.prototype.run = function () {
   this.status = "running";
 
-  var s = Math.min(speed, maxSpeed);
+  var s = Math.min(speed, 48); // Cap animation speed to avoid blur
 
   this.runningCycle += delta * s * .7;
   this.runningCycle = this.runningCycle % (Math.PI * 2);
