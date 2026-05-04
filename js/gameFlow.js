@@ -68,8 +68,11 @@ function resetGame() {
   heroHolder.position.set(0, 0, 0);
   heroHolder.rotation.set(0, 0, 0);
   heroHolder.add(hero.mesh); // Re-attach if it was 'eaten'
-  hero.mesh.position.set(0, 0, 0); // Reset local offset from tween
-  monster.mesh.position.set(0, 0, 0); // Reset local offset
+  hero.mesh.position.set(0, 0, 0); 
+  hero.mesh.rotation.set(0, Math.PI / 2, 0); // Reset to original forward rotation
+  monster.mesh.position.set(0, 0, 0);
+  monster.mesh.rotation.set(0, 0, 0);
+  monster.body.rotation.set(0, 0, 0);
 
   // Set proximity (distance between characters) based on selected role
   if (myRole === 'wolf') {

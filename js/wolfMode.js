@@ -76,19 +76,19 @@ var wolfAI = {
     if (boneDiff > Math.PI) boneDiff = Math.PI * 2 - boneDiff;
 
     // 1. Avoid Hedgehogs
-    if (obstacle.status !== 'flying' && obstDiff < this.reactionDist && this.jumpCooldown <= 0) {
+    if (obstacle.status !== 'flying' && obstDiff < 0.35 && this.jumpCooldown <= 0) {
       if (!wolfIsJumping) {
         wolfJump();
-        this.jumpCooldown = 0.5;
+        this.jumpCooldown = 1.2; // Longer cooldown to prevent spam
       }
       return;
     }
 
     // 2. Catch Bones
-    if (bone.mesh.visible && boneDiff < 0.22 && this.jumpCooldown <= 0) {
+    if (bone.mesh.visible && boneDiff < 0.15 && this.jumpCooldown <= 0) {
       if (!wolfIsJumping) {
         wolfJump();
-        this.jumpCooldown = 0.7;
+        this.jumpCooldown = 1.5; // High cooldown for bones
       }
     }
   },
