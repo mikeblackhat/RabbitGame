@@ -8,8 +8,8 @@ var initSpeed = 24;
 var maxSpeed = 60;
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;
-var monsterAcceleration = 0.015;
-var monsterLevelMultiplier = 0.002;
+var monsterAcceleration = 0.0075;
+var monsterLevelMultiplier = 0.001;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 
@@ -34,8 +34,8 @@ window.gameState = {
   level: 1,
   proximity: 0.22, // Increased lead (was 0.15)
   proximityTarget: 0.22,
-  monsterAcceleration: 0.015,
-  monsterLevelMultiplier: 0.002,
+  monsterAcceleration: 0.0075,
+  monsterLevelMultiplier: 0.001,
   floorRotation: 0,
   collisionObstacle: 10,
   collisionBonus: 20,
@@ -57,8 +57,8 @@ window.gameConfig = {
   maxSpeed: 60,
   cameraPosGame: 160,
   cameraPosGameOver: 260,
-  monsterAcceleration: 0.015,
-  monsterLevelMultiplier: 0.002,
+  monsterAcceleration: 0.0075,
+  monsterLevelMultiplier: 0.001,
   malusClearColor: 0xb44b39,
   malusClearAlpha: 0
 };
