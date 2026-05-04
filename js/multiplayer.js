@@ -241,9 +241,23 @@ function broadcastDistance(dist) {
 function updateRaceLine() {
     const p1Marker = document.getElementById('p1Marker');
     const p2Marker = document.getElementById('p2Marker');
-    const trackLength = 10000; 
+    const trackLength = 2000; // Smaller track length so movement is visible (10000 was too long)
     
-    const myDist = gameState.distance / 2;
+    // Use same divisor as the main UI distance
+    const myDist = gameState.distance / 1.5;
+    
+    // In single player, the 'opponent' distance is relative to proximity
+    if (!isMultiplayer) {
+        if (myRole === 'rabbit') {
+            // Wolf distance = Rabbit distance - gap
+            // proximity is roughly 0 to 0.4. Let's map it to meters.
+            gameState.opponentDistance = myDist - (gameState.proximity * 500); 
+        } else {
+            // Rabbit distance = Wolf distance + gap
+            gameState.opponentDistance = myDist + (gameState.proximity * 500);
+        }
+    }
+
     const myPos = Math.min((myDist / trackLength) * 100, 100);
     const oppPos = Math.min((gameState.opponentDistance / trackLength) * 100, 100);
     
@@ -253,7 +267,7 @@ function updateRaceLine() {
     }
     if (p2Marker) {
         p2Marker.style.left = oppPos + "%";
-        p2Marker.innerText = (opponentRole === 'rabbit' || (opponentRole === "" && myRole === 'wolf') ? "🐰" : "🐺") + " P2 (" + Math.floor(gameState.opponentDistance) + ")";
+        p2Marker.innerText = (opponentRole === 'rabbit' || (!isMultiplayer && myRole === 'wolf') ? "🐰" : "🐺") + " P2 (" + Math.floor(gameState.opponentDistance) + ")";
     }
 }
 
