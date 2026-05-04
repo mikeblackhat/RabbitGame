@@ -229,7 +229,7 @@ Hero.prototype.jump = function () {
   if (this.status == "jumping") return;
   this.status = "jumping";
   var _this = this;
-  var totalSpeed = 10 / speed;
+  var totalSpeed = 0.5 + (4 / speed);
   var jumpHeight = 45;
 
   TweenMax.to(this.earL.rotation, totalSpeed, { x: "+=.3", ease: Back.easeOut });
