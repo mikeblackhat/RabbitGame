@@ -19,9 +19,8 @@ function checkCollision() {
     // Check all obstacles
     obstacles.forEach(obs => {
       var dm_rabbit = hero.mesh.position.clone().sub(obs.mesh.position.clone());
-      if (dm_rabbit.length() < gameState.collisionObstacle && obs.mesh.visible) {
-        getMalus();
-        obs.mesh.visible = false; // Hide on hit
+      if (dm_rabbit.length() < gameState.collisionObstacle && obs.mesh.visible && obs.status != "flying") {
+        getMalus(obs);
       }
     });
   }
@@ -79,11 +78,11 @@ function getWolfBonus() {
   playBonusSound();
 }
 
-function getMalus() {
-  obstacle.status = "flying";
+function getMalus(obs) {
+  obs.status = "flying";
   var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-  TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-  TweenMax.to(obstacle.mesh.rotation, 4, {
+  TweenMax.to(obs.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
+  TweenMax.to(obs.mesh.rotation, 4, {
     x: Math.PI * 3, y: Math.PI * 6, z: Math.PI * 3, ease: Power4.easeOut,
     onComplete: resetObstacle
   });
