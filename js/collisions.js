@@ -7,8 +7,6 @@ function checkCollision() {
   // Rabbit collisions
   if (myRole === 'rabbit' || !isMultiplayer) {
     var db_rabbit = hero.mesh.position.clone().sub(carrot.mesh.position.clone());
-    var dm_rabbit = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
-
     if (db_rabbit.length() < gameState.collisionBonus && carrot.mesh.visible) {
       getBonus();
     }
@@ -18,9 +16,14 @@ function checkCollision() {
       getHeartBonus();
     }
 
-    if (dm_rabbit.length() < gameState.collisionObstacle && obstacle.status != "flying") {
-      getMalus();
-    }
+    // Check all obstacles
+    obstacles.forEach(obs => {
+      var dm_rabbit = hero.mesh.position.clone().sub(obs.mesh.position.clone());
+      if (dm_rabbit.length() < gameState.collisionObstacle && obs.mesh.visible) {
+        getMalus();
+        obs.mesh.visible = false; // Hide on hit
+      }
+    });
   }
 
   // Wolf collisions (Bones and Heart only - Obstacles don't affect Wolf)
@@ -117,11 +120,13 @@ function getHeartBonus() {
 }
 
 function resetObstacle() {
-  obstacle.status = "ready";
-  obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-  // Wide range of randomness for re-entry
-  obstacle.angle = -gameState.floorRotation - 0.5 - Math.random() * 1.5;
-  obstacle.angle = obstacle.angle % (Math.PI * 2);
-  obstacle.mesh.rotation.set(0, 0, 0);
-  obstacle.mesh.position.z = 0;
+  obstacles.forEach(obs => {
+    if (!obs.mesh.visible) {
+      obs.status = "ready";
+      obs.body.rotation.y = Math.random() * Math.PI * 2;
+      obs.angle = -gameState.floorRotation - 0.5 - Math.random() * 2.0;
+      obs.mesh.rotation.set(0, 0, 0);
+      obs.mesh.visible = true;
+    }
+  });
 }

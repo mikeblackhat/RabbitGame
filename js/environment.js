@@ -92,13 +92,19 @@ function createCarrot() {
   scene.add(carrot.mesh);
 }
 
+var obstacles = [];
 function createObstacle() {
-  obstacle = new Hedgehog();
-  obstacle.body.rotation.y = -Math.PI / 2;
-  obstacle.mesh.scale.set(1.1, 1.1, 1.1);
-  obstacle.mesh.position.y = floorRadius + 4;
-  obstacle.nod();
-  scene.add(obstacle.mesh);
+  for (var i = 0; i < 3; i++) {
+    var obs = new Hedgehog();
+    obs.body.rotation.y = -Math.PI / 2;
+    obs.mesh.scale.set(1.1, 1.1, 1.1);
+    obs.mesh.position.y = floorRadius + 4;
+    obs.nod();
+    // Stagger them initially
+    obs.angle = - (i * 2.0); 
+    scene.add(obs.mesh);
+    obstacles.push(obs);
+  }
 }
 
 function createBonusParticles() {

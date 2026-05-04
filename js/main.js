@@ -54,7 +54,7 @@ function loop() {
 
     // Object updates (encapsulated in js/elements.js)
     carrot.update(gameState.delta, gameState.floorRotation);
-    obstacle.update(gameState.delta, gameState.floorRotation);
+    obstacles.forEach(obs => obs.update(gameState.delta, gameState.floorRotation));
     if (typeof bone !== 'undefined') bone.update(gameState.delta, gameState.floorRotation);
     if (typeof heart !== 'undefined') heart.update(gameState.delta, gameState.floorRotation);
 
