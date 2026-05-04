@@ -91,11 +91,7 @@ function getMalus(obs) {
     gameState.proximityTarget -= .06; // Reduced from .12 for better balance
     _wolfPopup('malusPopup', '💥 ¡EL LOBO SE ACERCA!', '#dc5f45');
   } else {
-    var txt = document.getElementById('gameoverText');
-    if (txt) txt.innerHTML = '¡CHOCASTE! 💥';
-    _wolfPopup('malusPopup', '💥 ¡GOLPE!', '#dc5f45');
-    gameOver();
-    return;
+    onRabbitHit();
   }
   
   TweenMax.from(gameState, .5, {
