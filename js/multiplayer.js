@@ -241,7 +241,7 @@ function broadcastDistance(dist) {
 function updateRaceLine() {
     const p1Marker = document.getElementById('p1Marker');
     const p2Marker = document.getElementById('p2Marker');
-    const trackLength = 5000; 
+    const trackLength = 10000; 
     
     const myDist = gameState.distance / 2;
     const myPos = Math.min((myDist / trackLength) * 100, 100);

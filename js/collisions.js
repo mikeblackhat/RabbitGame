@@ -67,7 +67,7 @@ function getWolfBonus() {
     updateTimerUI();
     _wolfPopup('bonusPopup', '🦴 LOBO: +5 SEG', '#2575fc');
   } else {
-    gameState.proximityTarget -= .025; 
+    gameState.proximityTarget -= .05; // Doubled from 0.025 to keep wolf competitive
     _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#2575fc');
   }
   playBonusSound();

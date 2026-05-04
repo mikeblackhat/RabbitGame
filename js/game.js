@@ -11,8 +11,13 @@ function updateDistance() {
   const d = gameState.distance / 1.5;
   fieldDistance.innerHTML = Math.floor(d);
 
-  if (Math.floor(d) >= gameState.level * 1000) {
+  if (Math.floor(d) >= (gameState.level + 1) * 500) {
     updateLevel();
+  }
+
+  // Update Progress Bar / Race Line
+  if (typeof updateRaceLine === 'function') {
+    updateRaceLine();
   }
 
   if (isMultiplayer) {

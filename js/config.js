@@ -33,7 +33,7 @@ window.gameState = {
   level: 1,
   proximity: 0.15, // Gap between characters
   proximityTarget: 0.15,
-  monsterAcceleration: 0.002,
+  monsterAcceleration: 0.0038, // Buffed to keep the challenge at higher distances
   floorRotation: 0,
   collisionObstacle: 10,
   collisionBonus: 20,
