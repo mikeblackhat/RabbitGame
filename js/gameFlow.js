@@ -67,6 +67,7 @@ function resetGame() {
   }
   heroHolder.position.set(0, 0, 0);
   heroHolder.rotation.set(0, 0, 0);
+  heroHolder.add(hero.mesh); // Re-attach if it was 'eaten'
   hero.mesh.position.set(0, 0, 0); // Reset local offset from tween
   monster.mesh.position.set(0, 0, 0); // Reset local offset
 
