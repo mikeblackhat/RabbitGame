@@ -4,8 +4,8 @@
 
 // Core Constants - Global for compatibility
 var floorRadius = 200;
-var initSpeed = 24;
-var maxSpeed = 60;
+var initSpeed = 30;
+var maxSpeed = 75;
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;
 var monsterAcceleration = 0.0075;
@@ -53,8 +53,8 @@ window.gameState = {
 // Global config for reference
 window.gameConfig = {
   floorRadius: 200,
-  initSpeed: 24,
-  maxSpeed: 60,
+  initSpeed: 30,
+  maxSpeed: 75,
   cameraPosGame: 160,
   cameraPosGameOver: 260,
   monsterAcceleration: 0.0075,
