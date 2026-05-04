@@ -346,22 +346,33 @@ LifeHeart = function () {
   this.angle = 0;
   this.mesh = new THREE.Group();
 
-  var heartShape = new THREE.Shape();
-  heartShape.moveTo( 0, 0 );
-  heartShape.bezierCurveTo( 0, -3, -5, -3, -5, 0 );
-  heartShape.bezierCurveTo( -5, 3, 0, 5, 0, 10 );
-  heartShape.bezierCurveTo( 0, 5, 5, 3, 5, 0 );
-  heartShape.bezierCurveTo( 5, -3, 0, -3, 0, 0 );
+  var heartMat = new THREE.MeshPhongMaterial({
+    color: 0xff0044,
+    shininess: 30,
+    specular: 0xffffff,
+    shading: THREE.FlatShading
+  });
 
-  var extrudeSettings = { amount: 2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
-  var geometry = new THREE.ExtrudeGeometry( heartShape, extrudeSettings );
+  // Create a more 3D heart using spheres and a cone
+  var sphereGeom = new THREE.SphereGeometry(4, 8, 8);
   
-  // Use pinkMat or similar red-ish material
-  this.body = new THREE.Mesh(geometry, pinkMat); 
-  this.body.rotation.z = Math.PI;
-  this.body.scale.set(0.6, 0.6, 0.6);
+  this.leftLobe = new THREE.Mesh(sphereGeom, heartMat);
+  this.leftLobe.position.x = -2.5;
+  this.leftLobe.position.y = 2.5;
+  this.mesh.add(this.leftLobe);
 
-  this.mesh.add(this.body);
+  this.rightLobe = new THREE.Mesh(sphereGeom, heartMat);
+  this.rightLobe.position.x = 2.5;
+  this.rightLobe.position.y = 2.5;
+  this.mesh.add(this.rightLobe);
+
+  var coneGeom = new THREE.ConeGeometry(5.5, 10, 8);
+  this.bottom = new THREE.Mesh(coneGeom, heartMat);
+  this.bottom.rotation.x = Math.PI;
+  this.bottom.position.y = -1;
+  this.mesh.add(this.bottom);
+
+  this.mesh.scale.set(0.8, 0.8, 0.8);
 
   this.mesh.traverse(function (object) {
     if (object instanceof THREE.Mesh) {

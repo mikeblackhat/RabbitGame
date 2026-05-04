@@ -69,10 +69,16 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-function updateProximity() {
-  // Multiply by delta to make it per-second, not per-frame
-  const currentAccel = (gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier)) * gameState.delta;
-  gameState.proximityTarget -= currentAccel;
+  // Calculate base acceleration
+  let currentAccel = (gameConfig.monsterAcceleration + (gameState.level * gameConfig.monsterLevelMultiplier));
+  
+  // RUBBER-BANDING: If the rabbit is too far ahead, the wolf gets a boost to maintain tension
+  if (gameState.proximity > 0.4) {
+    const leadBonus = (gameState.proximity - 0.4) * 0.05; // Extra push based on how far ahead the rabbit is
+    currentAccel += leadBonus;
+  }
+  
+  gameState.proximityTarget -= currentAccel * gameState.delta;
   
   // Smoothly move proximity towards target
   gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 2.5;
