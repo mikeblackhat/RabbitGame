@@ -32,10 +32,10 @@ window.gameState = {
   speed: 0,
   distance: 0,
   level: 1,
-  proximity: 0.15, // Gap between characters
-  proximityTarget: 0.15,
-  monsterAcceleration: 0.0042, // Base acceleration
-  monsterLevelMultiplier: 0.0008, // Extra acceleration per level
+  proximity: 0.22, // Increased lead (was 0.15)
+  proximityTarget: 0.22,
+  monsterAcceleration: 0.015,
+  monsterLevelMultiplier: 0.002,
   floorRotation: 0,
   collisionObstacle: 10,
   collisionBonus: 20,

@@ -67,14 +67,16 @@ function resetGame() {
   }
   heroHolder.position.set(0, 0, 0);
   heroHolder.rotation.set(0, 0, 0);
+  hero.mesh.position.set(0, 0, 0); // Reset local offset from tween
+  monster.mesh.position.set(0, 0, 0); // Reset local offset
 
   // Set proximity (distance between characters) based on selected role
   if (myRole === 'wolf') {
     // Wolf is central, rabbit ahead
-    gameState.proximity = 0.15; // initial gap
+    gameState.proximity = 0.22; // initial gap (buffed from 0.15)
   } else {
     // Rabbit is central, wolf behind
-    gameState.proximity = 0.15;
+    gameState.proximity = 0.22;
   }
   gameState.proximityTarget = gameState.proximity;
 
@@ -95,6 +97,14 @@ function resetGame() {
   gameState.gameStatus = "play";
   hero.status = "running";
   hero.nod();
+
+  // Force position update before first render frame
+  if (typeof updateEntityPositions === 'function') {
+    updateEntityPositions();
+  }
+  if (typeof updateRaceLine === 'function') {
+    updateRaceLine();
+  }
 
   // Reset Day Theme
   const dayBg = "#dbe6e6";
