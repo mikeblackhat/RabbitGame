@@ -72,7 +72,7 @@ function resetGame() {
   hero.mesh.rotation.set(0, Math.PI / 2, 0); // Reset to original forward rotation
   monster.mesh.position.set(0, 0, 0);
   monster.mesh.rotation.set(0, 0, 0);
-  monster.body.rotation.set(0, 0, 0);
+  monster.body.rotation.set(0, Math.PI / 2, 0); // Restore original rotation
 
   // Set proximity (distance between characters) based on selected role
   if (myRole === 'wolf') {
