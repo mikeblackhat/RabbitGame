@@ -34,7 +34,7 @@ function init(event) {
 }
 
 function loop() {
-  var delta = clock.getDelta();
+  delta = clock.getDelta();
   gameState.delta = delta;
   speed = gameState.speed;
 
