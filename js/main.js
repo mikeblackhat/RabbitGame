@@ -63,6 +63,11 @@ function loop() {
 
     // Collision detection
     checkCollision();
+
+    // Broadcast Host state in competitive mode
+    if (typeof syncHostState === 'function') {
+      syncHostState();
+    }
   }
 
   render();
@@ -83,7 +88,7 @@ function updateProximity() {
   // Smoothly move proximity towards target
   gameState.proximity += (gameState.proximityTarget - gameState.proximity) * gameState.delta * 2.5;
 
-  if (gameState.gameMode === "endless") {
+  if (gameState.gameMode === "endless" || (typeof isMultiplayer !== 'undefined' && isMultiplayer)) {
     if (gameState.proximity < 0.04) { // Lobo has to be closer
       handleMonsterCaught();
     } else if (gameState.proximity > 0.95) { // Rabbit needs a bigger lead to win
@@ -93,6 +98,13 @@ function updateProximity() {
 }
 
 function handleRabbitEscaped() {
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer) {
+    if (typeof isHost !== 'undefined' && isHost) {
+      sendData({ type: 'competitiveGameOver', winner: 'rabbit', reason: 'escaped' });
+    }
+    handleCompetitiveGameOver('rabbit', 'escaped');
+    return;
+  }
   const txt = document.getElementById('gameoverText');
   if (txt) txt.innerHTML = '¡ESCAPASTE! 🐰💨';
   gameOver();
@@ -129,6 +141,13 @@ function updateEntityPositions() {
 }
 
 function handleMonsterCaught() {
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer) {
+    if (typeof isHost !== 'undefined' && isHost) {
+      sendData({ type: 'competitiveGameOver', winner: 'wolf', reason: 'caught' });
+    }
+    handleCompetitiveGameOver('wolf', 'caught');
+    return;
+  }
   const txt = document.getElementById('gameoverText');
   if (txt) {
     if (typeof myRole !== 'undefined' && myRole === 'wolf') {

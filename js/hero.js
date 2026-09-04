@@ -228,6 +228,9 @@ Hero.prototype.run = function () {
 Hero.prototype.jump = function () {
   if (this.status == "jumping") return;
   this.status = "jumping";
+  if (typeof syncMultiplayerJump === 'function' && typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'rabbit') {
+    syncMultiplayerJump('rabbit');
+  }
   var _this = this;
   var totalSpeed = 0.5 + (4 / speed);
   var jumpHeight = 45;

@@ -268,24 +268,134 @@
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
 }
 
 .room-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 #roomCodeInput {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 15px;
-  border-radius: 10px;
+  padding: 16px;
+  border-radius: 12px;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   text-align: center;
   outline: none;
+  font-family: var(--font-ui);
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+}
+
+#roomCodeInput:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 15px rgba(37, 117, 252, 0.4);
+}
+
+.room-section button {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#createRoomBtn, #joinRoomBtn {
+  background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+}
+
+#createRoomBtn:hover, #joinRoomBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 117, 252, 0.5);
+}
+
+.secondary-action-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+}
+
+.secondary-action-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+.room-code-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 18px 35px;
+  margin: 15px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.room-badge-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 5px;
+}
+
+#currentRoomCode {
+  font-size: 32px;
+  letter-spacing: 4px;
+  color: #4cd137;
+  font-family: monospace;
+}
+
+.room-share-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.copy-feedback {
+  margin-top: 12px;
+  color: #4cd137;
+  font-weight: bold;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+.waiting-hint {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 20px;
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.4;
 }
 
 .divider {

@@ -1,0 +1,24 @@
+{
+  "name": "rabbit-game",
+  "version": "1.0.0",
+  "description": "Atrapa el Valiente Conejo - Juego 3D con Modo Competitivo Online",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve .",
+    "build": "echo 'Proyecto estático listo para producción'",
+    "zip": "zip -r rabbitGame-hostinger.zip . -x '*.git*' -x '*.DS_Store*' -x 'node_modules/*'"
+  },
+  "keywords": [
+    "threejs",
+    "webrtc",
+    "multiplayer",
+    "3d-game",
+    "peerjs"
+  ],
+  "author": "mikeblackhat",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

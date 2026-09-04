@@ -63,6 +63,10 @@ function getBonus() {
     _wolfPopup('bonusPopup', msg, '#5f9042');
   }
   playBonusSound();
+
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'rabbit') {
+    if (typeof syncMultiplayerItem === 'function') syncMultiplayerItem('carrot', 'rabbit');
+  }
 }
 
 function getWolfBonus() {
@@ -76,6 +80,10 @@ function getWolfBonus() {
     _wolfPopup('bonusPopup', '🦴 LOBO: +VELOCIDAD', '#dc5f45');
   }
   playBonusSound();
+
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'wolf') {
+    if (typeof syncMultiplayerItem === 'function') syncMultiplayerItem('bone', 'wolf');
+  }
 }
 
 function getMalus(obs) {
@@ -100,7 +108,12 @@ function getMalus(obs) {
     }
   });
   playMalusSound();
-  if (!isMultiplayer) onRabbitHit();
+
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'rabbit') {
+    if (typeof syncMultiplayerHit === 'function') syncMultiplayerHit('rabbit');
+  } else if (!isMultiplayer) {
+    onRabbitHit();
+  }
 }
 
 function getWolfMalus() {
@@ -112,6 +125,10 @@ function getHeartBonus() {
   healRabbit();
   playBonusSound();
   _wolfPopup('bonusPopup', '❤️ +1 VIDA', '#e91e63');
+
+  if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'rabbit') {
+    if (typeof syncMultiplayerItem === 'function') syncMultiplayerItem('heart', 'rabbit');
+  }
 }
 
 function resetObstacle() {

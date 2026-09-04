@@ -95,6 +95,13 @@ function onRabbitHit() {
   updateLivesDisplay();
   showHitFlash('#dc5f45');
   if (rabbitHits >= MAX_HITS) {
+    if (typeof isMultiplayer !== 'undefined' && isMultiplayer) {
+      if (typeof isHost !== 'undefined' && isHost) {
+        sendData({ type: 'competitiveGameOver', winner: 'wolf', reason: 'lives' });
+      }
+      handleCompetitiveGameOver('wolf', 'lives');
+      return;
+    }
     var txt = document.getElementById('gameoverText');
     if (txt) txt.innerHTML = '¡LOBO GANA! 🐺';
     gameOver();
@@ -107,6 +114,13 @@ function onWolfHit() {
   showHitFlash('#2575fc');
   _wolfPopup('wolfMissEl', '💥 ¡FALLASTE!');
   if (wolfHits >= MAX_HITS) {
+    if (typeof isMultiplayer !== 'undefined' && isMultiplayer) {
+      if (typeof isHost !== 'undefined' && isHost) {
+        sendData({ type: 'competitiveGameOver', winner: 'rabbit', reason: 'lives' });
+      }
+      handleCompetitiveGameOver('rabbit', 'lives');
+      return;
+    }
     var txt = document.getElementById('gameoverText');
     if (txt) txt.innerHTML = '¡EL CONEJO ESCAPA! 🐰';
     gameOver();
@@ -154,12 +168,15 @@ var boneTimer = 0;
 var heartSpawnTimer = 3;
 
 function tickWolfItems(dt) {
-  if (!bone.mesh.visible) {
+  if (bone && !bone.mesh.visible) {
     boneTimer -= dt;
     if (boneTimer <= 0) {
       bone.mesh.visible = true;
       bone.angle = -gameState.floorRotation - 0.8;
       boneTimer = 2 + Math.random() * 3;
+      if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof isHost !== 'undefined' && isHost) {
+        sendData({ type: 'spawnItem', item: 'bone', angle: bone.angle });
+      }
     }
   }
 
@@ -170,6 +187,9 @@ function tickWolfItems(dt) {
         heart.mesh.visible = true;
         heart.angle = -gameState.floorRotation - 0.8;
         heartSpawnTimer = 10 + Math.random() * 5;
+        if (typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof isHost !== 'undefined' && isHost) {
+          sendData({ type: 'spawnItem', item: 'heart', angle: heart.angle });
+        }
       }
     } else {
       heartSpawnTimer = 3;
@@ -191,6 +211,9 @@ function wolfJump() {
   if (gameState.gameStatus !== 'play') return;
   if (wolfIsJumping) return;
   wolfIsJumping = true;
+  if (typeof syncMultiplayerJump === 'function' && typeof isMultiplayer !== 'undefined' && isMultiplayer && typeof myRole !== 'undefined' && myRole === 'wolf') {
+    syncMultiplayerJump('wolf');
+  }
   var spd = 0.5 + (4 / Math.max(gameState.speed || 1, 1));
   TweenMax.killTweensOf(wolfJumpOff);
   TweenMax.to(wolfJumpOff, spd / 2, { v: 40, ease: Power2.easeOut });
@@ -209,6 +232,11 @@ function updateWolfMode(dt) {
       wolfAI.update(dt);
     }
     tickWolfItems(dt);
+  } else {
+    // In multiplayer, Host runs item spawner
+    if (typeof isHost !== 'undefined' && isHost) {
+      tickWolfItems(dt);
+    }
   }
 }
 

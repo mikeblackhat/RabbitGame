@@ -46,7 +46,9 @@
 
   <div id="gameoverInstructions">
     <div id="gameoverText">Fin del juego</div>
+    <div id="gameoverSubtext" style="display:none; font-size: 18px; margin-bottom: 15px; opacity: 0.85;"></div>
     <button id="restartButton">Volver a Jugar</button>
+    <button id="rematchButton" style="display:none;">⚔️ Revancha</button>
   </div>
 
   <div id="gameOverOverlay"></div>
@@ -78,30 +80,43 @@
     <div class="button-group">
       <button id="startButton">Modo Infinito</button>
       <button id="timeAttackButton">Contra Reloj</button>
-      <button id="multiplayerButton">Modo Competitivo</button>
+      <button id="multiplayerButton">Modo Competitivo ⚔️</button>
     </div>
   </div>
 
   <div id="multiplayerMenu" style="display: none;">
-    <h2>Multijugador Online</h2>
-    <p id="peerIdDisplay">Conectando...</p>
+    <h2>Modo Competitivo Online</h2>
+    <p id="peerIdDisplay">Conectando a la red...</p>
     <div class="room-actions">
       <div class="room-section">
-        <button id="createRoomBtn">Crear Sala Libre</button>
+        <button id="createRoomBtn">🎮 Crear Sala Privada</button>
       </div>
       <div class="divider"><span>O</span></div>
       <div class="room-section">
-        <input type="text" id="roomCodeInput" placeholder="Código de Sala">
-        <button id="joinRoomBtn">Unirse a Sala</button>
+        <input type="text" id="roomCodeInput" placeholder="Ingresa Código (ej: RAB-492)" maxlength="12">
+        <button id="joinRoomBtn">⚔️ Unirse a la Sala</button>
+      </div>
+      <div class="divider"><span>O</span></div>
+      <div class="room-section">
+        <button id="quickMatchBtn" class="secondary-action-btn">⚡ Sala Rápida Pública</button>
       </div>
     </div>
     <button id="backToMenuBtn" class="back-btn">Volver</button>
   </div>
 
   <div id="waitingRoom" style="display: none;">
-    <h2>Esperando Oponente...</h2>
+    <h2>Sala Competitiva</h2>
     <div class="loader"></div>
-    <p>Código de tu sala: <strong id="currentRoomCode"></strong></p>
+    <div class="room-code-badge">
+      <span class="room-badge-label">Código de Sala:</span>
+      <strong id="currentRoomCode">---</strong>
+    </div>
+    <div class="room-share-actions">
+      <button id="copyRoomCodeBtn" class="action-btn">📋 Copiar Código</button>
+      <button id="copyRoomLinkBtn" class="action-btn">🔗 Copiar Enlace Directo</button>
+    </div>
+    <p id="copyFeedback" class="copy-feedback" style="display: none;">¡Copiado al portapapeles! Envíalo a tu amigo.</p>
+    <p class="waiting-hint">Comparte el código o el enlace directo para que tu rival se una al duelo.</p>
     <button id="cancelWaitingBtn" class="back-btn">Cancelar</button>
   </div>
 
@@ -136,7 +151,10 @@
         </div>
       </div>
     </div>
-    <p id="roleWaitingMsg">Esperando confirmación...</p>
+    <div id="matchCountdown" style="display: none; font-size: 26px; font-weight: bold; color: #f1c40f; margin-top: 25px; text-shadow: 0 0 15px rgba(241,196,15,0.6);">
+      ¡EL DUELO COMIENZA EN <span id="countdownNumber">3</span>!
+    </div>
+    <p id="roleWaitingMsg">Esperando que ambos jugadores elijan bando...</p>
     <button id="backFromRoleBtn" class="back-btn">VOLVER AL MENÚ</button>
   </div>
 

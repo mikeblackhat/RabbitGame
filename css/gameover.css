@@ -45,6 +45,32 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
+#restartButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #fff;
+  transform: translateY(-3px);
+}
+
+#rematchButton {
+  background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  padding: 15px 50px;
+  font-size: 24px;
+  text-transform: uppercase;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(37, 117, 252, 0.5);
+  margin-top: 15px;
+  display: inline-block;
+}
+
+#rematchButton:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 35px rgba(37, 117, 252, 0.7);
+}
+
 #gameOverOverlay {
   position: fixed;
   top: 0;
