@@ -7,13 +7,39 @@ var peer = null;
 var conn = null;
 var isHost = false;
 var myPeerId = "";
+var currentTargetRoom = "";
 var opponentRole = "";
 var gameReady = false;
 var lastHostSyncTime = 0;
 var rematchRequestedByMe = false;
 var rematchRequestedByOpponent = false;
+var connectionTimeoutTimer = null;
+var isConnectedAndReady = false;
 
-// Generate clean 6-character room code (e.g. RAB-492)
+// High-reliability ICE Servers: STUN + OpenRelay TURN for strict NAT traversal
+var ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  {
+    urls: 'turn:standard.relay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'turn:standard.relay.metered.ca:443',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'turn:standard.relay.metered.ca:443?transport=tcp',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  }
+];
+
+// Generate clean short room code (e.g. RAB-2P8)
 function generateRoomCode() {
   var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   var code = "RAB-";
@@ -26,62 +52,67 @@ function generateRoomCode() {
 /**
  * Initialize PeerJS network
  */
-function initMultiplayer(autoJoinCode) {
-  if (peer && !peer.destroyed) {
-    if (autoJoinCode) {
-      connectToRoom(autoJoinCode);
-    }
+function initMultiplayer(targetRoomCode) {
+  var urlParams = new URLSearchParams(window.location.search);
+  var roomFromUrl = targetRoomCode || urlParams.get('room');
+
+  if (roomFromUrl) {
+    roomFromUrl = roomFromUrl.trim().toUpperCase();
+    console.log("Inicializando como cliente para sala:", roomFromUrl);
+    joinAsClient(roomFromUrl);
+    return;
+  }
+
+  // Otherwise initialize as potential Host
+  if (peer && !peer.destroyed && myPeerId) {
     return;
   }
 
   var chosenId = generateRoomCode();
-  
+  createHostPeer(chosenId);
+}
+
+function createHostPeer(hostId) {
+  if (peer && !peer.destroyed) {
+    peer.destroy();
+  }
+
   try {
-    peer = new Peer(chosenId, {
+    peer = new Peer(hostId, {
       debug: 1,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' }
-        ]
-      }
+      config: { iceServers: ICE_SERVERS }
     });
   } catch (err) {
-    console.error("PeerJS init failed:", err);
-    peer = new Peer(null, { debug: 1 });
+    console.warn("Fallo con ID personalizado, usando ID automático:", err);
+    peer = new Peer(null, {
+      debug: 1,
+      config: { iceServers: ICE_SERVERS }
+    });
   }
 
   peer.on('open', function(id) {
     myPeerId = id;
-    console.log("PeerJS ready with ID:", id);
+    console.log("Host PeerJS listo con ID:", id);
     var display = document.getElementById('peerIdDisplay');
     if (display) display.innerText = "Tu ID de red: " + id;
-
-    // If URL has ?room=... auto-connect
-    if (autoJoinCode) {
-      connectToRoom(autoJoinCode);
-    }
+    var codeEl = document.getElementById('currentRoomCode');
+    if (codeEl) codeEl.innerText = id;
   });
 
-  peer.on('connection', function(c) {
+  peer.on('connection', function(incomingConn) {
+    console.log("¡Conexión entrante recibida de:", incomingConn.peer);
     if (conn && conn.open) {
-      c.close();
+      incomingConn.close();
       return;
     }
-    conn = c;
-    isHost = true;
-    setupConnection();
+    setupActiveConnection(incomingConn, true);
   });
 
   peer.on('error', function(err) {
-    console.warn("PeerJS error:", err.type, err);
+    console.warn("PeerJS Host error:", err.type, err);
     if (err.type === 'unavailable-id') {
-      // Retry with another random ID
-      peer = new Peer(generateRoomCode(), { debug: 1 });
-    } else if (err.type === 'peer-unavailable') {
-      alert("No se encontró la sala especificada. Verifica el código e intenta de nuevo.");
-      showMenu('multiplayerMenu');
+      // Reintentar con otro código
+      createHostPeer(generateRoomCode());
     }
   });
 
@@ -89,59 +120,141 @@ function initMultiplayer(autoJoinCode) {
 }
 
 /**
- * Connect to a room by room code
+ * Join a room as a client
  */
-function connectToRoom(id) {
-  if (!id) return;
-  id = id.trim().toUpperCase();
-
-  if (!peer || peer.destroyed) {
-    initMultiplayer(id);
-    return;
-  }
+function joinAsClient(roomId) {
+  currentTargetRoom = roomId.trim().toUpperCase();
+  isHost = false;
 
   var waitingRoom = document.getElementById('waitingRoom');
+  var multiMenu = document.getElementById('multiplayerMenu');
+  var startScreen = document.getElementById('startScreen');
+
+  if (startScreen) startScreen.style.display = 'none';
+  if (multiMenu) multiMenu.style.display = 'none';
   if (waitingRoom) {
     waitingRoom.style.display = 'flex';
     var codeEl = document.getElementById('currentRoomCode');
-    if (codeEl) codeEl.innerText = id;
+    if (codeEl) codeEl.innerText = currentTargetRoom;
     var hint = waitingRoom.querySelector('.waiting-hint');
-    if (hint) hint.innerText = "Conectando con la sala " + id + "...";
+    if (hint) hint.innerText = "Conectando con la sala " + currentTargetRoom + "...";
   }
 
-  conn = peer.connect(id, { reliable: true });
-  isHost = false;
-  setupConnection();
+  // Set connection timeout: 20 seconds
+  if (connectionTimeoutTimer) clearTimeout(connectionTimeoutTimer);
+  connectionTimeoutTimer = setTimeout(function() {
+    if (!isConnectedAndReady) {
+      alert("No se pudo conectar a la sala " + currentTargetRoom + ". Verifica que el anfitrión siga en la pantalla de espera y reinténtalo.");
+      location.href = window.location.pathname;
+    }
+  }, 20000);
+
+  // Client creates an auto-assigned peer to avoid ID conflict
+  if (peer && !peer.destroyed && peer.open) {
+    doClientConnect(currentTargetRoom);
+  } else {
+    if (peer && !peer.destroyed) peer.destroy();
+    peer = new Peer(null, {
+      debug: 1,
+      config: { iceServers: ICE_SERVERS }
+    });
+
+    peer.on('open', function(id) {
+      myPeerId = id;
+      console.log("Cliente Peer listo con ID:", id);
+      doClientConnect(currentTargetRoom);
+    });
+
+    peer.on('error', function(err) {
+      console.error("PeerJS Client error:", err.type, err);
+      if (err.type === 'peer-unavailable') {
+        clearTimeout(connectionTimeoutTimer);
+        alert("La sala " + currentTargetRoom + " no existe o el anfitrión cerró la partida.");
+        location.href = window.location.pathname;
+      }
+    });
+  }
+
+  setupMultiplayerUI();
+}
+
+function doClientConnect(targetId) {
+  console.log("Intentando conectar con el anfitrión:", targetId);
+  var outgoingConn = peer.connect(targetId);
+  setupActiveConnection(outgoingConn, false);
 }
 
 /**
  * Configure active peer connection
  */
-function setupConnection() {
-  if (!conn) return;
+function setupActiveConnection(c, isHostRole) {
+  conn = c;
+  isHost = isHostRole;
 
-  conn.on('open', function() {
-    console.log("Conectado con el oponente!");
+  function onConnected() {
+    if (isConnectedAndReady) return;
+    isConnectedAndReady = true;
+
+    if (connectionTimeoutTimer) clearTimeout(connectionTimeoutTimer);
+    console.log("¡Conexión WebRTC completamente abierta! Rol:", isHostRole ? "Host" : "Cliente");
+
     isMultiplayer = true;
     gameState.gameMode = "competitive";
 
-    document.getElementById('multiplayerMenu').style.display = 'none';
-    document.getElementById('waitingRoom').style.display = 'none';
-    document.getElementById('startScreen').style.display = 'none';
+    // Send handshake ping
+    try {
+      conn.send({ type: 'handshake', role: isHostRole ? 'host' : 'client' });
+    } catch (e) {}
 
-    showRoleSelection();
+    // Show role selection
+    var multiMenu = document.getElementById('multiplayerMenu');
+    var waitingRoom = document.getElementById('waitingRoom');
+    var startScreen = document.getElementById('startScreen');
+    var roleSelection = document.getElementById('roleSelection');
+
+    if (multiMenu) multiMenu.style.display = 'none';
+    if (waitingRoom) waitingRoom.style.display = 'none';
+    if (startScreen) startScreen.style.display = 'none';
+    if (roleSelection) roleSelection.style.display = 'flex';
+
     setupRoleSelection();
-  });
+  }
+
+  if (conn.open) {
+    onConnected();
+  } else {
+    conn.on('open', onConnected);
+  }
 
   conn.on('data', function(data) {
+    if (data && data.type === 'handshake') {
+      onConnected();
+      return;
+    }
     handleIncomingData(data);
   });
 
   conn.on('close', function() {
-    console.log("El oponente se ha desconectado");
-    alert("El oponente se ha desconectado de la partida.");
-    location.href = window.location.pathname;
+    console.log("Conexión cerrada por el oponente");
+    if (gameState.gameStatus === "play") {
+      alert("El rival se ha desconectado de la partida.");
+      location.href = window.location.pathname;
+    }
   });
+
+  conn.on('error', function(err) {
+    console.error("Error en data channel:", err);
+  });
+
+  // ICE state monitor
+  if (conn.peerConnection) {
+    conn.peerConnection.oniceconnectionstatechange = function() {
+      console.log("ICE Connection State:", conn.peerConnection.iceConnectionState);
+      if (conn.peerConnection.iceConnectionState === 'connected' || conn.peerConnection.iceConnectionState === 'completed') {
+        onConnected();
+      }
+    };
+  }
 }
 
 /**
@@ -149,7 +262,11 @@ function setupConnection() {
  */
 function sendData(data) {
   if (conn && conn.open) {
-    conn.send(data);
+    try {
+      conn.send(data);
+    } catch (e) {
+      console.warn("Fallo al enviar datos:", e);
+    }
   }
 }
 
@@ -174,7 +291,9 @@ function setupMultiplayerUI() {
     multiBtn.onclick = function() {
       document.getElementById('startScreen').style.display = 'none';
       multiMenu.style.display = 'flex';
-      if (!peer) initMultiplayer();
+      if (!peer || peer.destroyed) {
+        initMultiplayer();
+      }
     };
   }
 
@@ -201,10 +320,9 @@ function setupMultiplayerUI() {
     joinBtn.onclick = function() {
       var code = roomInput.value.trim().toUpperCase();
       if (code) {
-        multiMenu.style.display = 'none';
-        connectToRoom(code);
+        joinAsClient(code);
       } else {
-        alert("Por favor ingresa un código de sala válido.");
+        alert("Por favor ingresa un código de sala válido (ej: RAB-2P8).");
       }
     };
   }
@@ -212,17 +330,18 @@ function setupMultiplayerUI() {
   if (quickMatchBtn) {
     quickMatchBtn.onclick = function() {
       var publicRoom = "RAB-PUB1";
-      multiMenu.style.display = 'none';
-      connectToRoom(publicRoom);
+      joinAsClient(publicRoom);
     };
   }
 
   if (cancelWaiting) {
     cancelWaiting.onclick = function() {
+      if (connectionTimeoutTimer) clearTimeout(connectionTimeoutTimer);
       if (conn) {
         conn.close();
         conn = null;
       }
+      isConnectedAndReady = false;
       waitingRoom.style.display = 'none';
       multiMenu.style.display = 'flex';
     };
@@ -308,7 +427,6 @@ function setupRoleSelection() {
       : "Elige tu bando para comenzar";
   }
 
-  // Reset cards styles
   [rabbitCard, wolfCard].forEach(function(card) {
     if (card) {
       card.classList.remove('selected', 'disabled');
@@ -357,7 +475,6 @@ function checkAllRolesChosen() {
       }
     }
 
-    // Both chosen different roles -> Start Countdown!
     var countdownEl = document.getElementById('matchCountdown');
     var numEl = document.getElementById('countdownNumber');
     var waitingMsg = document.getElementById('roleWaitingMsg');
@@ -435,7 +552,6 @@ function handleIncomingData(data) {
 
     case 'hostSync':
       if (!isHost) {
-        // Authoritative sync from Host
         gameState.distance = data.distance;
         gameState.speed = data.speed;
         gameState.proximity = data.proximity;
@@ -507,7 +623,6 @@ function handleIncomingData(data) {
         rematchBtn.style.animation = "pulse 1s infinite";
       }
       if (rematchRequestedByMe) {
-        // Both agreed!
         executeRematch();
       }
       break;
@@ -518,9 +633,6 @@ function handleIncomingData(data) {
   }
 }
 
-/**
- * Remote Visual Actions (No local duplication of collision logic)
- */
 function remoteRabbitJump() {
   if (hero && hero.status !== "jumping") {
     hero.jump();
@@ -533,40 +645,28 @@ function remoteWolfJump() {
   }
 }
 
-/**
- * Sync jump over network
- */
 function syncMultiplayerJump(role) {
   if (isMultiplayer) {
     sendData({ type: 'jump', role: role });
   }
 }
 
-/**
- * Sync collected items over network
- */
 function syncMultiplayerItem(itemType, role) {
   if (isMultiplayer) {
     sendData({ type: 'itemCollected', item: itemType, role: role });
   }
 }
 
-/**
- * Sync hits over network
- */
 function syncMultiplayerHit(role) {
   if (isMultiplayer) {
     sendData({ type: 'rabbitHit' });
   }
 }
 
-/**
- * Broadcast Host state periodically
- */
 function syncHostState() {
   if (!isMultiplayer || !isHost || gameState.gameStatus !== "play") return;
   var now = performance.now();
-  if (now - lastHostSyncTime > 60) { // ~16 updates per second
+  if (now - lastHostSyncTime > 60) {
     lastHostSyncTime = now;
     sendData({
       type: 'hostSync',
@@ -580,9 +680,6 @@ function syncHostState() {
   }
 }
 
-/**
- * Competitive Game Over handler
- */
 function handleCompetitiveGameOver(winner, reason) {
   gameState.gameStatus = "gameOver";
   var txt = document.getElementById('gameoverText');
@@ -623,16 +720,12 @@ function handleCompetitiveGameOver(winner, reason) {
     rematchBtn.style.animation = "";
   }
 
-  // Show UI overlay
   var instr = document.getElementById('gameoverInstructions');
   var overlay = document.getElementById('gameOverOverlay');
   if (instr) instr.className = "show";
   if (overlay) overlay.className = "show";
 }
 
-/**
- * Revancha (Rematch) handling
- */
 function requestRematch() {
   rematchRequestedByMe = true;
   var rematchBtn = document.getElementById('rematchButton');
@@ -660,15 +753,11 @@ function executeRematch() {
   var rematchBtn = document.getElementById('rematchButton');
   if (rematchBtn) rematchBtn.style.display = "none";
 
-  // Re-run countdown and start
   var roleScreen = document.getElementById('roleSelection');
   if (roleScreen) roleScreen.style.display = 'flex';
   setupRoleSelection();
 }
 
-/**
- * Update top race bar markers
- */
 function updateRaceLine() {
   var p1Marker = document.getElementById('p1Marker');
   var p2Marker = document.getElementById('p2Marker');
@@ -701,9 +790,7 @@ function broadcastDistance(dist) {
   }
 }
 
-/**
- * Check URL on load for auto-join
- */
+// Auto-check on load
 window.addEventListener('DOMContentLoaded', function() {
   var params = new URLSearchParams(window.location.search);
   var roomFromUrl = params.get('room');
@@ -711,6 +798,6 @@ window.addEventListener('DOMContentLoaded', function() {
     console.log("Detectada sala en URL:", roomFromUrl);
     setTimeout(function() {
       initMultiplayer(roomFromUrl);
-    }, 400);
+    }, 200);
   }
 });
